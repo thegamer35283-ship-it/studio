@@ -11,7 +11,7 @@ export function Hero() {
   const mainImage = PlaceHolderImages.find(img => img.id === 'hero-main')
   const bgImage = PlaceHolderImages.find(img => img.id === 'hero-bg')
   
-  const mainImageUrl = mainImage?.imageUrl || "https://picsum.photos/seed/needy-community-help/1024/1024"
+  const mainImageUrl = mainImage?.imageUrl || "https://picsum.photos/seed/poor-child-hope/1024/1024"
   const bgImageUrl = bgImage?.imageUrl || "https://picsum.photos/seed/islamic-night-bg/1920/1080"
 
   return (
@@ -43,23 +43,22 @@ export function Hero() {
               </div>
               
               {/* India and Iran Flags */}
-              <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-1.5">
-                   <svg width="24" height="16" viewBox="0 0 900 600" className="rounded-sm">
-                    <rect width="900" height="600" fill="#f4c430"/>
-                    <rect width="900" height="400" fill="#fff"/>
-                    <rect width="900" height="200" fill="#19880c"/>
-                    <circle cx="450" cy="300" r="100" fill="none" stroke="#000080" strokeWidth="15"/>
-                    <circle cx="450" cy="300" r="10" fill="#000080"/>
+              <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm shadow-inner">
+                <div className="flex items-center gap-2">
+                   <svg width="24" height="16" viewBox="0 0 900 600" className="rounded-sm shadow-sm">
+                    <rect width="900" height="200" fill="#FF9933"/>
+                    <rect width="900" height="200" y="200" fill="#fff"/>
+                    <rect width="900" height="200" y="400" fill="#128807"/>
+                    <circle cx="450" cy="300" r="40" fill="#000080"/>
                   </svg>
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">India</span>
                 </div>
                 <div className="w-px h-4 bg-white/20"></div>
-                <div className="flex items-center gap-1.5">
-                  <svg width="24" height="16" viewBox="0 0 112 80" className="rounded-sm">
-                    <rect width="112" height="80" fill="#DA0000"/>
-                    <rect width="112" height="53.33" fill="#fff"/>
+                <div className="flex items-center gap-2">
+                  <svg width="24" height="16" viewBox="0 0 112 80" className="rounded-sm shadow-sm">
                     <rect width="112" height="26.66" fill="#239E46"/>
+                    <rect width="112" height="26.66" y="26.66" fill="#fff"/>
+                    <rect width="112" height="26.66" y="53.33" fill="#DA0000"/>
                     <path d="M56 40 a4 4 0 0 1 0 8 a4 4 0 0 1 0 -8" fill="#DA0000"/>
                   </svg>
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Iran</span>
@@ -108,10 +107,10 @@ export function Hero() {
             <div className="relative h-[600px] w-full rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-black/20 backdrop-blur-sm border border-white/10">
               <Image
                 src={mainImageUrl}
-                alt={mainImage?.description || "Charity Impact"}
+                alt={mainImage?.description || "Direct Relief Impact"}
                 fill
                 className="object-cover"
-                data-ai-hint={mainImage?.imageHint || "needy people charity"}
+                data-ai-hint={mainImage?.imageHint || "poor child"}
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
