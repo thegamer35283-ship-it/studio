@@ -11,8 +11,6 @@ import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
-import Image from "next/image"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const PRESETS = [
@@ -37,8 +35,6 @@ export function DonationFlow() {
   const [step, setStep] = useState<"pay" | "success">("pay")
   const [hasCopied, setHasCopied] = useState(false)
 
-  const qrImage = PlaceHolderImages.find(img => img.id === 'phonepe-qr')
-
   useEffect(() => {
     if (!user && auth) {
       initiateAnonymousSignIn(auth)
@@ -62,7 +58,7 @@ export function DonationFlow() {
       toast({
         variant: "destructive",
         title: "Amount Required",
-        description: "Please enter the amount you sent via QR.",
+        description: "Please enter the amount you sent via UPI.",
       })
       return
     }
@@ -79,7 +75,7 @@ export function DonationFlow() {
       currency: "INR",
       transactionDate: new Date().toISOString(),
       paymentMethodType: "QR / UPI",
-      transactionReference: utr || `QR-${Math.random().toString(36).substring(7).toUpperCase()}`,
+      transactionReference: utr || `UPI-${Math.random().toString(36).substring(7).toUpperCase()}`,
       status: "Completed",
       isRecurring: false,
       createdAt: new Date().toISOString(),
@@ -128,14 +124,14 @@ export function DonationFlow() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-xs font-bold mb-6 uppercase tracking-[0.2em] border border-accent/20">
               <Sparkles className="w-3 h-3" /> Live Humanitarian Ledger
             </div>
-            <h2 className="text-5xl lg:text-6xl font-headline font-bold mb-6 tracking-tight">Direct QR Contribution</h2>
+            <h2 className="text-5xl lg:text-6xl font-headline font-bold mb-6 tracking-tight">Direct Contribution</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed italic">
               "The believer's shade on the Day of Resurrection will be their charity."
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left: QR Interaction */}
+            {/* Left: Payment Interaction */}
             <div className="space-y-8">
               <Card className="border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] rounded-[4rem] bg-[#000000] text-white overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full blur-[120px] -mr-40 -mt-40 group-hover:scale-125 transition-transform duration-1000" />
@@ -143,22 +139,11 @@ export function DonationFlow() {
                   <div className="w-20 h-20 rounded-[2.5rem] bg-accent flex items-center justify-center text-white mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
                     <QrCode className="w-10 h-10" />
                   </div>
-                  <CardTitle className="text-4xl font-headline mb-3 tracking-tight">Qr</CardTitle>
+                  <CardTitle className="text-4xl font-headline mb-3 tracking-tight">Payment Node</CardTitle>
                   <CardDescription className="text-accent text-xl font-bold uppercase tracking-widest">{NAME}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
-                  <div className="w-full max-w-[320px] aspect-[4/5] relative bg-white rounded-[3rem] p-8 shadow-2xl mb-10 border-8 border-white/10 group-hover:scale-105 transition-transform duration-500">
-                    <Image 
-                      src={qrImage?.imageUrl || ""} 
-                      alt="Sahil Ansari Official QR Code" 
-                      fill 
-                      className="object-contain"
-                      data-ai-hint="phonepe qr"
-                      priority
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col gap-5 w-full">
+                  <div className="flex flex-col gap-5 w-full mt-4">
                     <div className="flex items-center justify-between p-5 bg-white/5 rounded-[2rem] border border-white/10 group/id transition-all hover:bg-white/10 hover:border-accent/40">
                       <div className="text-left pl-2">
                         <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-1">Secured UPI ID</p>
