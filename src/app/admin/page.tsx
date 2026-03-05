@@ -45,25 +45,25 @@ export default function AdminDashboard() {
   
   const { data: adminRole, isLoading: isAdminLoading } = useDoc(adminRoleRef)
 
-  // Fetch all donations to calculate total revenue
+  // Fetch all donations to calculate total revenue - Guarded by adminRole
   const donationsQuery = useMemoFirebase(() => {
-    if (!firestore) return null
+    if (!firestore || !adminRole) return null
     return query(collection(firestore, "donations"), orderBy("createdAt", "desc"))
-  }, [firestore])
+  }, [firestore, adminRole])
   const { data: donations } = useCollection(donationsQuery)
 
-  // Fetch campaigns for count
+  // Fetch campaigns for count - Guarded by adminRole
   const campaignsQuery = useMemoFirebase(() => {
-    if (!firestore) return null
+    if (!firestore || !adminRole) return null
     return query(collection(firestore, "campaigns"))
-  }, [firestore])
+  }, [firestore, adminRole])
   const { data: campaigns } = useCollection(campaignsQuery)
 
-  // Fetch communities for count
+  // Fetch communities for count - Guarded by adminRole
   const communitiesQuery = useMemoFirebase(() => {
-    if (!firestore) return null
+    if (!firestore || !adminRole) return null
     return query(collection(firestore, "beneficiary_communities"))
-  }, [firestore])
+  }, [firestore, adminRole])
   const { data: communities } = useCollection(communitiesQuery)
 
   const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
