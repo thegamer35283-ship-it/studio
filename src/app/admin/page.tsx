@@ -28,7 +28,8 @@ import {
   Coins,
   History,
   ArrowUpRight,
-  Fingerprint
+  Fingerprint,
+  Contact
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -67,6 +68,13 @@ export default function AdminDashboard() {
     return query(collection(firestore, "beneficiary_communities"))
   }, [firestore, adminRole])
   const { data: communities } = useCollection(communitiesQuery)
+
+  // Fetch staff for count - Guarded by adminRole
+  const staffQuery = useMemoFirebase(() => {
+    if (!firestore || !adminRole) return null
+    return query(collection(firestore, "staff"))
+  }, [firestore, adminRole])
+  const { data: staff } = useCollection(staffQuery)
 
   const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
 
@@ -185,6 +193,9 @@ export default function AdminDashboard() {
             <TabsTrigger value="campaigns" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <Heart className="w-4 h-4" /> Campaigns
             </TabsTrigger>
+            <TabsTrigger value="staff" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <Contact className="w-4 h-4" /> Staff
+            </TabsTrigger>
             <TabsTrigger value="communities" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <Globe className="w-4 h-4" /> Communities
             </TabsTrigger>
@@ -198,7 +209,7 @@ export default function AdminDashboard() {
               {[
                 { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
                 { label: "Active Nodes", value: `${campaigns?.length || 0} Projects`, icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
-                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: `${donations?.length || 0} Contribs`, color: "text-primary", bg: "bg-primary/5" },
+                { label: "Team Size", icon: <Users className="w-5 h-5" />, value: `${staff?.length || 0} Members`, color: "text-primary", bg: "bg-primary/5" },
                 { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: `${communities?.length || 0} Regions`, color: "text-accent", bg: "bg-accent/5" }
               ].map((stat, i) => (
                 <Card key={i} className="border-none shadow-xl rounded-[2.5rem] hover-lift transition-all overflow-hidden relative group">
@@ -301,6 +312,17 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="staff" className="animate-in fade-in slide-in-from-bottom-4">
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <StaffList staff={staff} />
+              </div>
+              <div className="lg:col-span-1">
+                <StaffForm />
+              </div>
+            </div>
+          </TabsContent>
+
           <TabsContent value="communities" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
@@ -382,6 +404,137 @@ function DonationList({ donations }: { donations: any[] | null }) {
             )}
           </TableBody>
         </Table>
+      </CardContent>
+    </Card>
+  )
+}
+
+function StaffList({ staff }: { staff: any[] | null }) {
+  const { firestore } = useFirebase()
+  return (
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-3xl font-headline">Organizational Staff</CardTitle>
+            <CardDescription className="text-lg">Manage the team powering our mission.</CardDescription>
+          </div>
+          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{staff?.length || 0} Members</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Name & Role</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Contact</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {staff?.map((s) => (
+              <TableRow key={s.id} className="border-muted/10 group">
+                <TableCell className="pl-10 py-6">
+                  <div>
+                    <p className="font-bold text-primary">{s.name}</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{s.role}</p>
+                  </div>
+                </TableCell>
+                <TableCell className="text-xs font-medium">
+                  <p>{s.email}</p>
+                  <p className="text-muted-foreground">{s.phoneNumber}</p>
+                </TableCell>
+                <TableCell>
+                  <Badge className={s.status === 'Active' ? 'bg-accent/10 text-accent border-none' : 'bg-muted text-muted-foreground border-none'}>
+                    {s.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right pr-10">
+                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
+                     if (confirm(`Remove ${s.name} from the staff records?`)) {
+                       const ref = doc(firestore!, "staff", s.id)
+                       deleteDocumentNonBlocking(ref)
+                     }
+                  }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {staff?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No staff members registered in the current directory.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
+
+function StaffForm() {
+  const { firestore } = useFirebase()
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    role: "Field Coordinator",
+    email: "",
+    phoneNumber: "",
+    status: "Active"
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!firestore) return
+    setLoading(true)
+    
+    const colRef = collection(firestore, "staff")
+    const id = crypto.randomUUID()
+    
+    addDocumentNonBlocking(colRef, {
+      ...formData,
+      id,
+      joinedDate: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }).then(() => {
+      setLoading(false)
+      toast({ title: "Staff Member Added", description: "Identity verified and recorded." })
+      setFormData({ name: "", role: "Field Coordinator", email: "", phoneNumber: "", status: "Active" })
+    })
+  }
+
+  return (
+    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
+      <CardHeader className="p-8">
+        <CardTitle className="font-headline text-2xl">Add Staff</CardTitle>
+        <CardDescription>Register a new member to the team.</CardDescription>
+      </CardHeader>
+      <CardContent className="p-8 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
+            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl h-12" placeholder="e.g. Sahil Ansari" />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Role / Title</Label>
+            <Input value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} required className="rounded-2xl h-12" placeholder="Accountant" />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Email</Label>
+            <Input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="rounded-2xl h-12" />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Phone</Label>
+            <Input value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} className="rounded-2xl h-12" />
+          </div>
+          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl transition-all text-lg gap-2">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Add Member</>}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   )

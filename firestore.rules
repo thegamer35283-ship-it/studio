@@ -51,6 +51,10 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    match /staff/{staffId} {
+      allow read, write: if isAdmin();
+    }
+
     match /beneficiary_communities/{communityId} {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();

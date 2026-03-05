@@ -267,6 +267,62 @@
         "createdAt"
       ]
     },
+    "StaffMember": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StaffMember",
+      "type": "object",
+      "description": "Represents a member of the organization's staff or dedicated volunteers.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the StaffMember entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the staff member."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the staff member.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The job title or role (e.g., 'Field Coordinator', 'Accountant')."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the staff member."
+        },
+        "status": {
+          "type": "string",
+          "description": "Employment status.",
+          "enum": ["Active", "Inactive"]
+        },
+        "joinedDate": {
+          "type": "string",
+          "description": "The date they joined the organization.",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "role",
+        "status",
+        "createdAt"
+      ]
+    },
     "BeneficiaryCommunity": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "BeneficiaryCommunity",
@@ -463,6 +519,16 @@
         }
       },
       {
+        "path": "/staff/{staffId}",
+        "definition": {
+          "entityName": "StaffMember",
+          "schema": {
+            "$ref": "#/backend/entities/StaffMember"
+          },
+          "description": "Collection of staff members and volunteers."
+        }
+      },
+      {
         "path": "/beneficiary_communities/{communityId}",
         "definition": {
           "entityName": "BeneficiaryCommunity",
@@ -512,6 +578,6 @@
         }
       }
     ],
-    "reasoning": "Updated path /app_roles/admin/{uid} to /admins/{uid} to ensure a valid even-segment document reference for DBAC checks."
+    "reasoning": "Added StaffMember entity and /staff collection for organizational management."
   }
 }
