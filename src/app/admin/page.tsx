@@ -29,7 +29,8 @@ import {
   History,
   ArrowUpRight,
   Fingerprint,
-  Contact
+  Contact,
+  Shield
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -75,6 +76,13 @@ export default function AdminDashboard() {
     return query(collection(firestore, "staff"))
   }, [firestore, adminRole])
   const { data: staff } = useCollection(staffQuery)
+
+  // Fetch all admins - Guarded by adminRole
+  const adminsQuery = useMemoFirebase(() => {
+    if (!firestore || !adminRole) return null
+    return query(collection(firestore, "admins"))
+  }, [firestore, adminRole])
+  const { data: admins } = useCollection(adminsQuery)
 
   const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
 
@@ -195,6 +203,9 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="staff" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <Contact className="w-4 h-4" /> Staff
+            </TabsTrigger>
+            <TabsTrigger value="admins" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <Shield className="w-4 h-4" /> Admins
             </TabsTrigger>
             <TabsTrigger value="communities" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <Globe className="w-4 h-4" /> Communities
@@ -323,6 +334,10 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="admins" className="animate-in fade-in slide-in-from-bottom-4">
+            <AdminList admins={admins} />
+          </TabsContent>
+
           <TabsContent value="communities" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
@@ -347,6 +362,69 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
     </div>
+  )
+}
+
+function AdminList({ admins }: { admins: any[] | null }) {
+  const { firestore } = useFirebase()
+  return (
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50 flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-3xl font-headline flex items-center gap-3">
+             <Shield className="w-8 h-8 text-primary" /> Registered Administrators
+          </CardTitle>
+          <CardDescription className="text-lg">Authorized personnel with ledger access.</CardDescription>
+        </div>
+        <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{admins?.length || 0} Admins</Badge>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/10 border-none hover:bg-muted/10">
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] pl-10 py-8">Administrator UID</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Role Verification</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] text-right pr-10">Command</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {admins?.map((admin) => (
+              <TableRow key={admin.id} className="border-muted/10 group">
+                <TableCell className="pl-10 py-6">
+                  <div className="flex items-center gap-2">
+                    <Fingerprint className="w-4 h-4 text-primary opacity-40" />
+                    <span className="font-mono text-sm font-bold text-primary">{admin.uid}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge className="bg-accent/10 text-accent border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 rounded-full">Full Access Command</Badge>
+                </TableCell>
+                <TableCell className="text-right pr-10">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-destructive rounded-xl hover:bg-destructive/10" 
+                    onClick={() => {
+                      if (confirm(`De-authorize administrator: ${admin.uid}?`)) {
+                        const ref = doc(firestore!, "admins", admin.uid)
+                        deleteDocumentNonBlocking(ref)
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {admins?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-20 text-muted-foreground italic font-medium">No other administrators registered in the ledger.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }
 
