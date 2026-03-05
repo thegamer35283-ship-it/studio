@@ -21,11 +21,15 @@ import {
   Globe, 
   Trash2,
   LogIn,
-  ShieldCheck
+  ShieldCheck,
+  TrendingUp,
+  HandHelping,
+  Briefcase
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 
 export default function AdminDashboard() {
   const { user, isUserLoading } = useUser()
@@ -48,36 +52,39 @@ export default function AdminDashboard() {
     const ref = doc(firestore, "admins", user.uid)
     setDocumentNonBlocking(ref, { uid: user.uid }, { merge: true })
     
-    // We don't await, the useDoc hook will pick up the change
     setTimeout(() => {
       setIsInitializing(false)
       toast({
         title: "Admin Role Initialized",
         description: "You now have full access to the Command Center.",
       })
-    }, 1000)
+    }, 1500)
   }
 
   if (isUserLoading || isAdminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground animate-pulse">Authenticating Session...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-        <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mb-6">
-          <ShieldAlert className="w-10 h-10" />
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-full h-full bg-primary/5 -z-10 opacity-50" />
+        <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary mb-8 shadow-2xl border border-primary/20">
+          <ShieldAlert className="w-12 h-12" />
         </div>
-        <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Admin Sign In</h1>
-        <p className="text-muted-foreground text-center max-w-md mb-8">
-          Authorized personnel only. Please sign in to access the Command Center.
+        <h1 className="text-4xl font-headline font-bold mb-4 text-primary">Admin Command Center</h1>
+        <p className="text-muted-foreground text-center max-w-md mb-10 leading-relaxed">
+          Authorized personnel only. Access to the humanitarian ledger requires a verified session.
         </p>
-        <Button onClick={() => initiateAnonymousSignIn(auth)} className="rounded-full px-10 h-14 font-bold text-lg gap-2">
-          <LogIn className="w-5 h-5" /> Access Dashboard
+        <Button onClick={() => initiateAnonymousSignIn(auth)} className="rounded-full px-12 h-16 font-bold text-xl gap-3 shadow-xl hover:scale-105 transition-transform">
+          <LogIn className="w-6 h-6" /> Access Dashboard
         </Button>
       </div>
     )
@@ -86,83 +93,162 @@ export default function AdminDashboard() {
   if (!adminRole) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-        <div className="w-20 h-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-6">
-          <ShieldAlert className="w-10 h-10" />
+        <div className="max-w-md w-full p-10 bg-white rounded-[3rem] shadow-2xl border flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-8">
+            <ShieldAlert className="w-10 h-10" />
+          </div>
+          <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Unauthorized Access</h1>
+          <p className="text-muted-foreground mb-8 text-sm">
+            Your account (<span className="font-mono text-[10px]">{user.uid}</span>) is not registered as an administrator in our humanitarian ledger.
+          </p>
+          <div className="flex flex-col gap-4 w-full">
+            <Button onClick={handleClaimAdmin} disabled={isInitializing} className="rounded-full h-14 font-bold gap-3 text-lg">
+              {isInitializing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />} 
+              Initialize Admin Role
+            </Button>
+            <Button variant="outline" className="rounded-full h-14 border-2" asChild>
+              <a href="/">Exit to Home</a>
+            </Button>
+          </div>
+          <p className="mt-10 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
+            Prototype Environment: Authorization override available
+          </p>
         </div>
-        <h1 className="text-2xl font-headline font-bold mb-2 text-primary">Access Denied</h1>
-        <p className="text-muted-foreground text-center max-w-md mb-8">
-          Your account ({user.uid}) does not have administrative privileges in the database.
-        </p>
-        <div className="flex flex-col gap-3 w-full max-w-xs">
-          <Button onClick={handleClaimAdmin} disabled={isInitializing} className="rounded-full h-12 font-bold gap-2">
-            {isInitializing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} 
-            Initialize Admin Role
-          </Button>
-          <Button variant="outline" className="rounded-full h-12" asChild>
-            <a href="/">Return Home</a>
-          </Button>
-        </div>
-        <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-          Prototype Mode: Self-registration enabled
-        </p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto py-12 px-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div className="min-h-screen bg-muted/20">
+      <div className="container mx-auto py-12 px-4 max-w-7xl">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
           <div>
-            <h1 className="text-4xl font-headline font-bold text-primary">Admin Command Center</h1>
-            <p className="text-muted-foreground italic">"Verily, Allah loves that when any of you does a job, he does it perfectly."</p>
-          </div>
-          <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border">
-            <div className="text-right">
-              <p className="text-sm font-bold">{user.displayName || "Administrator"}</p>
-              <p className="text-[10px] text-accent font-bold uppercase tracking-widest">Verified Session</p>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className="rounded-full px-3 py-1 bg-accent/10 text-accent font-bold uppercase tracking-tighter text-[10px]">Command Center v2.0</Badge>
+              <div className="h-1 w-1 rounded-full bg-accent" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Ledger Access</span>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
-              <Users className="w-5 h-5" />
+            <h1 className="text-5xl font-headline font-bold text-primary tracking-tight">Admin Dashboard</h1>
+            <p className="text-muted-foreground mt-2 italic font-medium">"Excellence is to do a job so well that it becomes a source of continuous blessing."</p>
+          </div>
+          
+          <div className="flex items-center gap-4 bg-white p-4 rounded-[2rem] shadow-xl border border-border/50 group hover:border-primary/30 transition-colors">
+            <div className="text-right">
+              <p className="text-sm font-bold text-primary">{user.displayName || "Head Administrator"}</p>
+              <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                <p className="text-[10px] text-accent font-black uppercase tracking-[0.2em]">Verified Secure</p>
+              </div>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
+              <Users className="w-6 h-6" />
             </div>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-white p-1 rounded-2xl h-14 border shadow-sm flex overflow-x-auto whitespace-nowrap">
-            <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white px-6 h-full">
-              <LayoutDashboard className="w-4 h-4 mr-2" /> Overview
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-10">
+          <TabsList className="bg-white/50 backdrop-blur-md p-1.5 rounded-[2rem] h-16 border shadow-inner flex w-full md:w-fit overflow-x-auto whitespace-nowrap scrollbar-hide">
+            <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <LayoutDashboard className="w-4 h-4" /> Overview
             </TabsTrigger>
-            <TabsTrigger value="campaigns" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white px-6 h-full">
-              <Heart className="w-4 h-4 mr-2" /> Campaigns
+            <TabsTrigger value="campaigns" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <Heart className="w-4 h-4" /> Campaigns
             </TabsTrigger>
-            <TabsTrigger value="communities" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white px-6 h-full">
-              <Globe className="w-4 h-4 mr-2" /> Communities
+            <TabsTrigger value="communities" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <Globe className="w-4 h-4" /> Communities
             </TabsTrigger>
-            <TabsTrigger value="reports" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white px-6 h-full">
-              <FileText className="w-4 h-4 mr-2" /> Reports
+            <TabsTrigger value="reports" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <FileText className="w-4 h-4" /> Reports
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {[
-                { label: "Total Funds (INR)", value: "₹52,10,000", color: "text-primary" },
-                { label: "Active Projects", value: "24", color: "text-accent" },
-                { label: "Staff Members", value: "12", color: "text-primary" },
-                { label: "Regions Active", value: "8", color: "text-accent" }
+                { label: "Total Revenue", value: "₹52.1M", icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
+                { label: "Active Nodes", value: "24 Projects", icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
+                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: "128 Members", color: "text-primary", bg: "bg-primary/5" },
+                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: "8 Regions", color: "text-accent", bg: "bg-accent/5" }
               ].map((stat, i) => (
-                <Card key={i} className="border-none shadow-sm rounded-3xl hover-lift">
-                  <CardHeader className="pb-2">
-                    <CardDescription className="text-[10px] uppercase font-bold tracking-widest">{stat.label}</CardDescription>
-                    <CardTitle className={`text-3xl font-headline ${stat.color}`}>{stat.value}</CardTitle>
+                <Card key={i} className="border-none shadow-xl rounded-[2.5rem] hover-lift transition-all overflow-hidden relative group">
+                  <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} -mr-8 -mt-8 rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
+                  <CardHeader className="relative z-10 pb-2">
+                    <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
+                      {stat.icon}
+                    </div>
+                    <CardDescription className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60">{stat.label}</CardDescription>
+                    <CardTitle className={`text-4xl font-headline font-bold ${stat.color}`}>{stat.value}</CardTitle>
                   </CardHeader>
                 </Card>
               ))}
             </div>
+            
+            <div className="grid lg:grid-cols-3 gap-8">
+              <Card className="lg:col-span-2 border-none shadow-xl rounded-[3rem] p-4">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-headline">Recent System Activity</CardTitle>
+                  <CardDescription>Real-time updates from across the Islamic Group 313 network.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {[
+                      { type: "Donation", user: "Zaid Khan", amount: "₹15,000", time: "2 mins ago" },
+                      { type: "Project", user: "Village A Well", amount: "Completed", time: "1 hour ago" },
+                      { type: "Admin", user: "System", amount: "Audit Started", time: "3 hours ago" }
+                    ].map((act, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                             <HandHelping className="w-4 h-4 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-primary">{act.user}</p>
+                            <p className="text-xs text-muted-foreground">{act.type}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-primary">{act.amount}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold">{act.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-xl rounded-[3rem] bg-primary text-primary-foreground overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -mr-32 -mt-32" />
+                <CardHeader className="relative z-10">
+                  <CardTitle className="text-2xl font-headline text-white">Quick Statistics</CardTitle>
+                  <CardDescription className="text-white/60">Current performance metrics.</CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10 space-y-8">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2 font-bold uppercase tracking-widest text-white/80">
+                      <span>Fundraising Goal</span>
+                      <span>₹8.5M / ₹10M</span>
+                    </div>
+                    <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-accent w-[85%] rounded-full" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-headline font-bold text-accent">98.2%</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Efficiency</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-headline font-bold text-accent">1.2s</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Ledger Sync</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          <TabsContent value="campaigns">
+          <TabsContent value="campaigns" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <CampaignList />
@@ -173,7 +259,7 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="communities">
+          <TabsContent value="communities" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <CommunityList />
@@ -184,7 +270,7 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="reports">
+          <TabsContent value="reports" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <ReportList />
@@ -204,40 +290,62 @@ function CampaignList() {
   const { firestore } = useFirebase()
   const q = useMemoFirebase(() => {
     if (!firestore) return null
-    return query(collection(firestore, "campaigns"), orderBy("createdAt", "desc"), limit(10))
+    return query(collection(firestore, "campaigns"), orderBy("createdAt", "desc"), limit(20))
   }, [firestore])
   
   const { data: campaigns, isLoading } = useCollection(q)
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
-      <CardHeader className="p-8 pb-4">
-        <CardTitle className="text-2xl font-headline">Active Campaigns</CardTitle>
-        <CardDescription>Track and manage your primary fundraising initiatives.</CardDescription>
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-3xl font-headline">Active Campaigns</CardTitle>
+            <CardDescription className="text-lg">Track progress of global humanitarian initiatives.</CardDescription>
+          </div>
+          <Badge className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors border-none py-1.5 px-4 font-bold">{campaigns?.length || 0} Registered</Badge>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         {isLoading ? (
-          <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
+          <div className="p-20 text-center flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Loading Ledger...</p>
+          </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50 border-none">
-                <TableHead className="font-bold pl-8">Name</TableHead>
-                <TableHead className="font-bold">Goal</TableHead>
-                <TableHead className="font-bold">Raised</TableHead>
-                <TableHead className="font-bold text-right pr-8">Actions</TableHead>
+              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Identity</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Financial Goal</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Current Raised</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {campaigns?.map((c) => (
-                <TableRow key={c.id} className="border-muted/20">
-                  <TableCell className="font-medium pl-8">{c.name}</TableCell>
-                  <TableCell>₹{Number(c.goalAmount).toLocaleString()}</TableCell>
-                  <TableCell className="text-accent font-bold">₹{Number(c.currentRaisedAmount).toLocaleString()}</TableCell>
-                  <TableCell className="text-right pr-8">
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => {
-                       const ref = doc(firestore!, "campaigns", c.id)
-                       deleteDocumentNonBlocking(ref)
+                <TableRow key={c.id} className="border-muted/10 group">
+                  <TableCell className="pl-10 py-6">
+                    <div>
+                      <p className="font-bold text-primary group-hover:text-accent transition-colors">{c.name}</p>
+                      <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{c.category}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono font-medium">₹{Number(c.goalAmount).toLocaleString()}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1.5 min-w-[120px]">
+                       <p className="text-xs font-black text-accent">₹{Number(c.currentRaisedAmount).toLocaleString()}</p>
+                       <div className="h-1.5 w-full bg-muted rounded-full">
+                         <div className="h-full bg-accent rounded-full" style={{ width: `${Math.min((c.currentRaisedAmount / c.goalAmount) * 100, 100)}%` }} />
+                       </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right pr-10">
+                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
+                       if (confirm(`Confirm decommissioning of campaign: ${c.name}?`)) {
+                         const ref = doc(firestore!, "campaigns", c.id)
+                         deleteDocumentNonBlocking(ref)
+                       }
                     }}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -246,7 +354,7 @@ function CampaignList() {
               ))}
               {campaigns?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">No campaigns registered yet.</TableCell>
+                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No humanitarian campaigns registered in the current ledger.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -265,7 +373,7 @@ function CampaignForm() {
     name: "",
     goalAmount: "",
     description: "",
-    category: "General",
+    category: "General Relief",
     isActive: true
   })
 
@@ -284,41 +392,44 @@ function CampaignForm() {
       currentRaisedAmount: 0,
       currency: "INR",
       startDate: new Date().toISOString().split('T')[0],
-      primaryImpactStatement: `Every ₹${formData.goalAmount} changes a life.`,
+      primaryImpactStatement: `Every ₹${formData.goalAmount} contributes to radical change.`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }).then(() => {
       setLoading(false)
-      toast({ title: "Campaign Launched", description: `${formData.name} is now live.` })
-      setFormData({ name: "", goalAmount: "", description: "", category: "General", isActive: true })
+      toast({ title: "Campaign Launched", description: "Ledger entry created successfully." })
+      setFormData({ name: "", goalAmount: "", description: "", category: "General Relief", isActive: true })
     })
   }
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl">
-      <CardHeader>
-        <CardTitle className="font-headline text-xl">Create Campaign</CardTitle>
+    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
+      <CardHeader className="p-8">
+        <CardTitle className="font-headline text-2xl">Launch Initiative</CardTitle>
+        <CardDescription>Deploy a new humanitarian project.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="p-8 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label>Campaign Title</Label>
-            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Title</Label>
+            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl border-muted/50 h-12 focus-visible:ring-accent" placeholder="e.g. Winter Survival Kits" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Goal (INR)</Label>
+              <Input type="number" value={formData.goalAmount} onChange={e => setFormData({...formData, goalAmount: e.target.value})} required className="rounded-2xl border-muted/50 h-12" placeholder="50000" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</Label>
+              <Input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
+            </div>
           </div>
           <div className="space-y-2">
-            <Label>Goal Amount (INR)</Label>
-            <Input type="number" value={formData.goalAmount} onChange={e => setFormData({...formData, goalAmount: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Objective</Label>
+            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-2xl border-muted/50 min-h-[120px]" placeholder="Outline the impact of this campaign..." />
           </div>
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required className="rounded-xl" />
-          </div>
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-xl" />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-12 font-bold bg-primary">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <><Plus className="w-4 h-4 mr-2" /> Launch Campaign</>}
+          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl hover:shadow-primary/20 transition-all text-lg gap-2">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Deploy Campaign</>}
           </Button>
         </form>
       </CardContent>
@@ -336,32 +447,37 @@ function CommunityList() {
   const { data: communities, isLoading } = useCollection(q)
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
-      <CardHeader className="p-8 pb-4">
-        <CardTitle className="text-2xl font-headline">Managed Communities</CardTitle>
-        <CardDescription>View and manage the regions receiving your organization's support.</CardDescription>
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50">
+        <CardTitle className="text-3xl font-headline">Managed Communities</CardTitle>
+        <CardDescription className="text-lg">View registered beneficiary regions.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         {isLoading ? (
-          <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
+          <div className="p-20 text-center flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Syncing Data...</p>
+          </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50 border-none">
-                <TableHead className="font-bold pl-8">Community Name</TableHead>
-                <TableHead className="font-bold">Region</TableHead>
-                <TableHead className="font-bold">Type</TableHead>
-                <TableHead className="font-bold text-right pr-8">Actions</TableHead>
+              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Community Identity</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Geographic Region</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Demographic</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {communities?.map((c) => (
-                <TableRow key={c.id} className="border-muted/20">
-                  <TableCell className="font-medium pl-8">{c.name}</TableCell>
-                  <TableCell>{c.geographicRegion}</TableCell>
-                  <TableCell className="text-xs uppercase font-bold text-muted-foreground">{c.type}</TableCell>
-                  <TableCell className="text-right pr-8">
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => {
+                <TableRow key={c.id} className="border-muted/10">
+                  <TableCell className="font-bold pl-10 py-6 text-primary">{c.name}</TableCell>
+                  <TableCell className="font-medium text-muted-foreground">{c.geographicRegion}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest text-accent border-accent/20 bg-accent/5">{c.type}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right pr-10">
+                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
                        const ref = doc(firestore!, "beneficiary_communities", c.id)
                        deleteDocumentNonBlocking(ref)
                     }}>
@@ -385,7 +501,7 @@ function CommunityForm() {
   const [formData, setFormData] = useState({
     name: "",
     geographicRegion: "",
-    type: "Village",
+    type: "Rural Village",
     description: ""
   })
 
@@ -404,36 +520,37 @@ function CommunityForm() {
       updatedAt: new Date().toISOString()
     }).then(() => {
       setLoading(false)
-      toast({ title: "Community Added", description: `${formData.name} has been registered.` })
-      setFormData({ name: "", geographicRegion: "", type: "Village", description: "" })
+      toast({ title: "Community Registered", description: "Node added to the network." })
+      setFormData({ name: "", geographicRegion: "", type: "Rural Village", description: "" })
     })
   }
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl">
-      <CardHeader>
-        <CardTitle className="font-headline text-xl">Register Community</CardTitle>
+    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
+      <CardHeader className="p-8">
+        <CardTitle className="font-headline text-2xl">Register Community</CardTitle>
+        <CardDescription>Expand the humanitarian footprint.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="p-8 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label>Name</Label>
-            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Community Name</Label>
+            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
           </div>
           <div className="space-y-2">
-            <Label>Geographic Region</Label>
-            <Input value={formData.geographicRegion} onChange={e => setFormData({...formData, geographicRegion: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Geographic Region</Label>
+            <Input value={formData.geographicRegion} onChange={e => setFormData({...formData, geographicRegion: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
           </div>
           <div className="space-y-2">
-            <Label>Community Type</Label>
-            <Input value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Community Type</Label>
+            <Input value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Brief Description</Label>
+            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-2xl border-muted/50 min-h-[100px]" />
           </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-12 font-bold bg-accent hover:bg-accent/90">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Save Region Details"}
+          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-accent hover:bg-accent/90 shadow-xl transition-all text-lg">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Region Node"}
           </Button>
         </form>
       </CardContent>
@@ -451,32 +568,37 @@ function ReportList() {
   const { data: reports, isLoading } = useCollection(q)
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
-      <CardHeader className="p-8 pb-4">
-        <CardTitle className="text-2xl font-headline">Transparency Hub</CardTitle>
-        <CardDescription>Manage public documents and audit statements.</CardDescription>
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50">
+        <CardTitle className="text-3xl font-headline">Transparency Hub</CardTitle>
+        <CardDescription className="text-lg">Audit statements and annual performance records.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         {isLoading ? (
-          <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
+          <div className="p-20 text-center flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Decrypting Files...</p>
+          </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50 border-none">
-                <TableHead className="font-bold pl-8">Title</TableHead>
-                <TableHead className="font-bold">Date</TableHead>
-                <TableHead className="font-bold">Type</TableHead>
-                <TableHead className="font-bold text-right pr-8">Actions</TableHead>
+              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Document Title</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Publish Date</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest">Audit Type</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reports?.map((r) => (
-                <TableRow key={r.id} className="border-muted/20">
-                  <TableCell className="font-medium pl-8">{r.title}</TableCell>
-                  <TableCell>{r.publishDate}</TableCell>
-                  <TableCell className="text-xs font-bold text-primary">{r.reportType}</TableCell>
-                  <TableCell className="text-right pr-8">
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => {
+                <TableRow key={r.id} className="border-muted/10">
+                  <TableCell className="font-bold pl-10 py-6 text-primary">{r.title}</TableCell>
+                  <TableCell className="font-medium text-muted-foreground">{r.publishDate}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest">{r.reportType}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right pr-10">
+                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
                        const ref = doc(firestore!, "transparency_reports", r.id)
                        deleteDocumentNonBlocking(ref)
                     }}>
@@ -500,7 +622,7 @@ function ReportForm() {
   const [formData, setFormData] = useState({
     title: "",
     reportUrl: "",
-    reportType: "Annual Report",
+    reportType: "Annual Impact Audit",
     description: "",
     publishDate: new Date().toISOString().split('T')[0]
   })
@@ -520,36 +642,39 @@ function ReportForm() {
       updatedAt: new Date().toISOString()
     }).then(() => {
       setLoading(false)
-      toast({ title: "Report Published", description: `${formData.title} is now public.` })
-      setFormData({ title: "", reportUrl: "", reportType: "Annual Report", description: "", publishDate: new Date().toISOString().split('T')[0] })
+      toast({ title: "Report Published", description: "Verification ledger updated." })
+      setFormData({ title: "", reportUrl: "", reportType: "Annual Impact Audit", description: "", publishDate: new Date().toISOString().split('T')[0] })
     })
   }
 
   return (
-    <Card className="border-none shadow-xl rounded-3xl">
-      <CardHeader>
-        <CardTitle className="font-headline text-xl">Publish Report</CardTitle>
+    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
+      <CardHeader className="p-8">
+        <CardTitle className="font-headline text-2xl">Publish Record</CardTitle>
+        <CardDescription>Maintain organizational transparency.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="p-8 pt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label>Report Title</Label>
-            <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Title</Label>
+            <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
           </div>
           <div className="space-y-2">
-            <Label>Document URL</Label>
-            <Input type="url" value={formData.reportUrl} onChange={e => setFormData({...formData, reportUrl: e.target.value})} placeholder="https://..." required className="rounded-xl" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Secured URL</Label>
+            <Input type="url" value={formData.reportUrl} onChange={e => setFormData({...formData, reportUrl: e.target.value})} placeholder="https://cloud.storage/..." required className="rounded-2xl border-muted/50 h-12" />
           </div>
-          <div className="space-y-2">
-            <Label>Report Type</Label>
-            <Input value={formData.reportType} onChange={e => setFormData({...formData, reportType: e.target.value})} placeholder="e.g. Audit Report" required className="rounded-xl" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Record Type</Label>
+              <Input value={formData.reportType} onChange={e => setFormData({...formData, reportType: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Release Date</Label>
+              <Input type="date" value={formData.publishDate} onChange={e => setFormData({...formData, publishDate: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>Publish Date</Label>
-            <Input type="date" value={formData.publishDate} onChange={e => setFormData({...formData, publishDate: e.target.value})} required className="rounded-xl" />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-12 font-bold bg-primary">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Verify & Publish"}
+          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl transition-all text-lg">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Publish Record"}
           </Button>
         </form>
       </CardContent>
