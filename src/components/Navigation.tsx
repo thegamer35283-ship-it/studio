@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Moon, User, LogOut, Shield } from "lucide-react"
+import { Moon, User, LogOut, Shield, Users } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase"
 import { signOut } from "firebase/auth"
@@ -17,6 +17,7 @@ export function Navigation() {
     { name: "Our Impact", href: "/impact" },
     { name: "Transparency", href: "/transparency" },
     { name: "Communities", href: "/communities" },
+    { name: "Our Team", href: "/team" },
   ]
 
   return (

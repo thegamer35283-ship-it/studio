@@ -52,7 +52,9 @@ service cloud.firestore {
     }
 
     match /staff/{staffId} {
-      allow read, write: if isAdmin();
+      // Allow public read access to staff for the frontend directory
+      allow get, list: if true;
+      allow write: if isAdmin();
     }
 
     match /beneficiary_communities/{communityId} {
