@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react"
+import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
@@ -21,7 +21,9 @@ const PRESETS = [
   { amount: 10000, description: "Funds a sustainable clean water source for an entire village." }
 ]
 
-const UPI_URI = "upi://pay?pa=9792880607-5@ibl&pn=SAHIL%20ANSARI&mc=0000&mode=02&purpose=00"
+const VPA = "9792880607-5@ibl"
+const NAME = "SAHIL ANSARI"
+const UPI_URI = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}`
 
 export function DonationFlow() {
   const { toast } = useToast()
@@ -32,6 +34,7 @@ export function DonationFlow() {
   const [customAmount, setCustomAmount] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<"pay" | "success">("pay")
+  const [hasCopied, setHasCopied] = useState(false)
 
   const qrImage = PlaceHolderImages.find(img => img.id === 'phonepe-qr')
 
@@ -40,6 +43,16 @@ export function DonationFlow() {
       initiateAnonymousSignIn(auth)
     }
   }, [user, auth])
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(VPA)
+    setHasCopied(true)
+    toast({
+      title: "UPI ID Copied",
+      description: "You can now paste this ID in your payment app.",
+    })
+    setTimeout(() => setHasCopied(false), 2000)
+  }
 
   const handleConfirmPayment = () => {
     const finalAmount = Number(customAmount || selectedAmount)
@@ -115,13 +128,13 @@ export function DonationFlow() {
             </div>
             <h2 className="text-5xl font-headline font-bold mb-4">Direct QR Contribution</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              We have simplified our giving process. Simply scan the QR or use the UPI link below to support the Ummah directly.
+              Scan the QR or use the UPI ID below to support the Ummah directly. Every rupee strengthens our bonds.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Left: The QR Code */}
-            <div className="space-y-6 sticky top-24">
+            <div className="space-y-6 lg:sticky lg:top-24">
               <Card className="border-none shadow-2xl rounded-[3.5rem] bg-[#000000] text-white overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-1000" />
                 <CardHeader className="p-12 pb-6 relative z-10 text-center">
@@ -129,7 +142,7 @@ export function DonationFlow() {
                     <QrCode className="w-8 h-8" />
                   </div>
                   <CardTitle className="text-4xl font-headline mb-2">Qr</CardTitle>
-                  <CardDescription className="text-white/60 text-lg font-bold">SAHIL ANSARI</CardDescription>
+                  <CardDescription className="text-white/60 text-lg font-bold">{NAME}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
                   <div className="w-full max-w-[300px] aspect-[4/5] relative bg-white rounded-[2.5rem] p-6 shadow-inner mb-8 border-4 border-white/5">
@@ -144,15 +157,21 @@ export function DonationFlow() {
                   </div>
                   
                   <div className="flex flex-col gap-4 w-full">
+                    <div className="flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 group/id transition-colors hover:border-accent/50">
+                      <div className="text-left">
+                        <p className="text-[10px] uppercase font-black tracking-widest text-white/40 mb-1">UPI ID</p>
+                        <code className="text-sm font-bold text-accent">{VPA}</code>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={copyToClipboard} className="text-white hover:bg-white/10 rounded-xl">
+                        {hasCopied ? <Check className="w-5 h-5 text-accent" /> : <Copy className="w-5 h-5" />}
+                      </Button>
+                    </div>
+
                     <Button asChild className="rounded-full bg-accent hover:bg-accent/90 h-16 gap-3 text-lg font-bold shadow-2xl transition-transform hover:scale-105 active:scale-95">
                       <a href={UPI_URI}>
                         <Smartphone className="w-6 h-6" /> Pay with UPI App <ExternalLink className="w-4 h-4" />
                       </a>
                     </Button>
-                    
-                    <div className="flex items-center justify-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 text-[10px] uppercase font-black tracking-[0.2em] text-accent/80">
-                      <ShieldCheck className="w-4 h-4" /> Secure Humanitarian Ledger
-                    </div>
                   </div>
 
                   <p className="mt-8 text-xs text-white/40 uppercase font-bold tracking-[0.2em] italic">
@@ -161,12 +180,20 @@ export function DonationFlow() {
                 </CardContent>
               </Card>
 
-              {/* Security Alert / Troubleshooting */}
-              <Alert className="rounded-[2rem] border-amber-200 bg-amber-50 text-amber-900 shadow-sm">
+              {/* Troubleshooting Alert */}
+              <Alert className="rounded-[2rem] border-amber-200 bg-amber-50 text-amber-900 shadow-sm border-l-4 border-l-amber-500">
                 <AlertCircle className="h-5 w-5 text-amber-600" />
-                <AlertTitle className="font-headline font-bold">Payment Issues?</AlertTitle>
-                <AlertDescription className="text-xs leading-relaxed opacity-90">
-                  If your app (like FamX) blocks the transaction for security reasons, please try using <strong>PhonePe, Google Pay, or Paytm</strong>. These apps are more likely to permit humanitarian contributions.
+                <AlertTitle className="font-headline font-bold text-base">Payment Blocked?</AlertTitle>
+                <AlertDescription className="text-xs leading-relaxed space-y-2 mt-2">
+                  <p>If your app (like <strong>FamX</strong>) blocks the transaction for security reasons, please try these steps:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li><strong>Copy the UPI ID</strong> above and paste it manually into your app.</li>
+                    <li>Try using <strong>PhonePe, Google Pay, or Paytm</strong> instead.</li>
+                    <li>These apps are more likely to permit humanitarian contributions.</li>
+                  </ul>
+                  <div className="pt-2 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+                    Radical Transparency In Every Bond
+                  </div>
                 </AlertDescription>
               </Alert>
             </div>
@@ -176,7 +203,7 @@ export function DonationFlow() {
               <div className="p-8 bg-white rounded-[3rem] shadow-sm border border-border/50">
                 <h3 className="text-2xl font-headline font-bold mb-6 text-primary">1. Send Payment</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                  Use your favorite UPI app to scan the QR code or click the button on the left. Once you've completed the transfer, proceed to the next step.
+                  Use your favorite UPI app to scan the QR code or click the button on the left. If the link is blocked, <strong>copy the UPI ID</strong> manually.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-4 bg-muted/30 rounded-2xl flex flex-col items-center text-center gap-1 border border-border/50">
