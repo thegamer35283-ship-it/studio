@@ -1,0 +1,533 @@
+{
+  "entities": {
+    "Donor": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Donor",
+      "type": "object",
+      "description": "Represents an individual or organization making a donation to the charity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Donor entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the donor."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the donor."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the donor, used for communication and receipts.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The phone number of the donor. (Optional)"
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "First line of the donor's address. (Optional, for receipts/reporting)"
+        },
+        "addressLine2": {
+          "type": "string",
+          "description": "Second line of the donor's address. (Optional)"
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of the donor's address. (Optional)"
+        },
+        "stateProvince": {
+          "type": "string",
+          "description": "The state or province of the donor's address. (Optional)"
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "The postal code of the donor's address. (Optional)"
+        },
+        "country": {
+          "type": "string",
+          "description": "The country of the donor's address. (Optional)"
+        },
+        "isGuest": {
+          "type": "boolean",
+          "description": "Indicates if the donation was made by a guest donor (without a full profile). Defaults to true if no full profile."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the donor record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the donor record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "isGuest",
+        "createdAt"
+      ]
+    },
+    "Campaign": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Campaign",
+      "type": "object",
+      "description": "Represents a specific charitable cause, project, or fundraising initiative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Campaign entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the charitable campaign."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the campaign's goals and impact."
+        },
+        "goalAmount": {
+          "type": "number",
+          "description": "The target fundraising amount for this campaign."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency in which the goal amount is set (e.g., 'INR', 'USD')."
+        },
+        "currentRaisedAmount": {
+          "type": "number",
+          "description": "The current amount of funds raised for this campaign."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date of the campaign.",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The planned end date of the campaign.",
+          "format": "date"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the campaign is currently active and open for donations."
+        },
+        "heroImageUrl": {
+          "type": "string",
+          "description": "URL for the main image displayed prominently for the campaign (e.g., in the hero section).",
+          "format": "uri"
+        },
+        "thumbnailImageUrl": {
+          "type": "string",
+          "description": "URL for a smaller image used in campaign listings or previews.",
+          "format": "uri"
+        },
+        "primaryImpactStatement": {
+          "type": "string",
+          "description": "A concise statement highlighting the primary impact of the campaign, potentially AI-generated."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category the campaign belongs to (e.g., 'Child Education', 'Healthcare', 'Disaster Relief')."
+        },
+        "beneficiaryCommunityIds": {
+          "type": "array",
+          "description": "References to BeneficiaryCommunity entities that benefit from this campaign. (Relationship: Campaign N:N BeneficiaryCommunity)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the campaign was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the campaign was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "goalAmount",
+        "currency",
+        "currentRaisedAmount",
+        "startDate",
+        "isActive",
+        "primaryImpactStatement",
+        "category",
+        "createdAt"
+      ]
+    },
+    "Donation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Donation",
+      "type": "object",
+      "description": "Represents a single monetary contribution made by a donor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Donation transaction."
+        },
+        "donorId": {
+          "type": "string",
+          "description": "Reference to the Donor who made this contribution. (Relationship: Donor 1:N Donation)"
+        },
+        "campaignId": {
+          "type": "string",
+          "description": "Reference to the Campaign this donation supports. Optional if it's a general donation. (Relationship: Campaign 1:N Donation)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the donation."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the donation. (e.g., 'INR' as per user request)"
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "The date and time when the donation transaction occurred.",
+          "format": "date-time"
+        },
+        "paymentMethodType": {
+          "type": "string",
+          "description": "The type of payment method used (e.g., 'Credit Card', 'Debit Card', 'Apple Pay', 'Google Pay')."
+        },
+        "transactionReference": {
+          "type": "string",
+          "description": "A unique reference ID provided by the payment gateway for the transaction."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the donation transaction (e.g., 'Completed', 'Pending', 'Failed', 'Refunded')."
+        },
+        "isRecurring": {
+          "type": "boolean",
+          "description": "Indicates if this donation is part of a recurring contribution plan."
+        },
+        "recurrenceFrequency": {
+          "type": "string",
+          "description": "The frequency of the recurring donation (e.g., 'monthly', 'annually'). Required if isRecurring is true."
+        },
+        "nextRecurrenceDate": {
+          "type": "string",
+          "description": "The date of the next scheduled payment for a recurring donation. Required if isRecurring is true.",
+          "format": "date"
+        },
+        "honoreeName": {
+          "type": "string",
+          "description": "The name of the individual in whose honor the donation was made. (Optional)"
+        },
+        "honoreeEmail": {
+          "type": "string",
+          "description": "The email address of the honoree, for sending digital acknowledgments. (Optional)",
+          "format": "email"
+        },
+        "honoreeMessage": {
+          "type": "string",
+          "description": "A personal message from the donor to the honoree. (Optional)"
+        },
+        "acknowledgmentEmailSent": {
+          "type": "boolean",
+          "description": "Indicates if a digital acknowledgment email has been sent to the honoree."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the donation record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the donation record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "donorId",
+        "amount",
+        "currency",
+        "transactionDate",
+        "paymentMethodType",
+        "transactionReference",
+        "status",
+        "isRecurring",
+        "createdAt"
+      ]
+    },
+    "BeneficiaryCommunity": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BeneficiaryCommunity",
+      "type": "object",
+      "description": "Represents a specific group or region that benefits from charitable activities, addressing the 'community' aspect of the request.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the BeneficiaryCommunity entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the beneficiary community (e.g., 'Rural Sindh Village A', 'Orphanage XYZ in Karachi')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the community and its needs."
+        },
+        "geographicRegion": {
+          "type": "string",
+          "description": "The geographical area where this community is located (e.g., 'Punjab, Pakistan', 'Mumbai, India')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type or demographic of the community (e.g., 'Children', 'Elderly', 'Rural Village', 'Disaster Victims')."
+        },
+        "campaignIds": {
+          "type": "array",
+          "description": "References to Campaign entities that support this community. (Relationship: BeneficiaryCommunity N:N Campaign)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the beneficiary community record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the beneficiary community record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "geographicRegion",
+        "type",
+        "createdAt"
+      ]
+    },
+    "TransparencyReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TransparencyReport",
+      "type": "object",
+      "description": "Stores information about publicly available reports and documents for trust and transparency.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the TransparencyReport entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the report (e.g., 'Annual Financial Report 2023', 'NGO Registration Certificate')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or summary of the report's content."
+        },
+        "reportUrl": {
+          "type": "string",
+          "description": "The URL or link to the actual report document (e.g., PDF).",
+          "format": "uri"
+        },
+        "publishDate": {
+          "type": "string",
+          "description": "The date when the report was published or released.",
+          "format": "date"
+        },
+        "reportType": {
+          "type": "string",
+          "description": "The type of the report (e.g., 'Annual Report', 'Audit Report', 'NGO Registration Document', 'Impact Assessment')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the report record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the report record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "reportUrl",
+        "publishDate",
+        "reportType",
+        "createdAt"
+      ]
+    },
+    "DonationTier": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DonationTier",
+      "type": "object",
+      "description": "Defines preset donation amounts and their associated impact descriptions for campaigns or general donations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DonationTier entity."
+        },
+        "campaignId": {
+          "type": "string",
+          "description": "Reference to the Campaign this tier is specific to. Optional for global donation tiers. (Relationship: Campaign 1:N DonationTier)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The specific donation amount for this tier (e.g., 10, 50, 100)."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency for this donation tier (e.g., 'INR')."
+        },
+        "impactDescription": {
+          "type": "string",
+          "description": "A description of the tangible impact this donation amount will have (e.g., 'Provides 10 meals for children', 'Funds a day of education')."
+        },
+        "sortOrder": {
+          "type": "number",
+          "description": "An integer to specify the display order of this tier in the UI."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the donation tier record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the donation tier record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "amount",
+        "currency",
+        "impactDescription",
+        "sortOrder",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/donors/{donorId}",
+        "definition": {
+          "entityName": "Donor",
+          "schema": {
+            "$ref": "#/backend/entities/Donor"
+          },
+          "description": "Stores individual donor profiles. The `{donorId}` matches the authenticated user's `uid` for logged-in donors, or a unique ID for guest donors. Accessible by the donor themselves and administrators. The `id` field inside the document explicitly identifies the donor, making it secure and authorization independent via path matching."
+        }
+      },
+      {
+        "path": "/campaigns/{campaignId}",
+        "definition": {
+          "entityName": "Campaign",
+          "schema": {
+            "$ref": "#/backend/entities/Campaign"
+          },
+          "description": "Main collection for charitable campaigns. Publicly readable for all users to view, list, and discover campaigns. Only administrators can create, update, or delete campaign records. Includes a 'currency' field to support different currencies like 'INR'."
+        }
+      },
+      {
+        "path": "/donations/{donationId}",
+        "definition": {
+          "entityName": "Donation",
+          "schema": {
+            "$ref": "#/backend/entities/Donation"
+          },
+          "description": "Records individual donation transactions. Accessible by the specific donor (`resource.data.donorId == request.auth.uid`) and administrators. The `donorId` field is denormalized within each document for Authorization Independence and secure QAPs for donor-specific listings. Includes a 'currency' field to explicitly store 'INR' or other currencies."
+        }
+      },
+      {
+        "path": "/beneficiary_communities/{communityId}",
+        "definition": {
+          "entityName": "BeneficiaryCommunity",
+          "schema": {
+            "$ref": "#/backend/entities/BeneficiaryCommunity"
+          },
+          "description": "Contains details about the communities or groups that benefit from campaigns. Publicly readable for transparency and context. Only administrators can manage these records, addressing the 'add commety' request."
+        }
+      },
+      {
+        "path": "/transparency_reports/{reportId}",
+        "definition": {
+          "entityName": "TransparencyReport",
+          "schema": {
+            "$ref": "#/backend/entities/TransparencyReport"
+          },
+          "description": "Stores links and metadata for public transparency documents and reports (e.g., financial reports, NGO registration). Publicly readable to build trust. Only administrators can create, update, or delete these records."
+        }
+      },
+      {
+        "path": "/donation_tiers/{tierId}",
+        "definition": {
+          "entityName": "DonationTier",
+          "schema": {
+            "$ref": "#/backend/entities/DonationTier"
+          },
+          "description": "Defines global or default preset donation amounts and their impact. Publicly readable for display on general donation pages. Only administrators can manage these. Includes a 'currency' field to support different currencies like 'INR'."
+        }
+      },
+      {
+        "path": "/campaigns/{campaignId}/donation_tiers/{tierId}",
+        "definition": {
+          "entityName": "DonationTier",
+          "schema": {
+            "$ref": "#/backend/entities/DonationTier"
+          },
+          "description": "Defines preset donation amounts and their impact descriptions specific to a particular campaign. Publicly readable. Only administrators can manage these. The `campaignId` is implicitly part of the path and would be explicitly stored in the document for data consistency. Includes a 'currency' field.",
+          "params": [
+            {
+              "name": "campaignId",
+              "description": "The unique identifier of the parent campaign."
+            },
+            {
+              "name": "tierId",
+              "description": "The unique identifier of the donation tier."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/app_roles/admin/{uid}",
+        "definition": {
+          "entityName": "AdminRole",
+          "schema": {
+            "$ref": "#/backend/entities/AdminRole"
+          },
+          "description": "This collection implements Database-Backed Access Control (DBAC) for administrators. The existence of a document where `{uid}` matches `request.auth.uid` grants administrative privileges across the application. This addresses the 'admin panel' request using the 'existence over content' principle.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "The unique user ID (Firebase Authentication UID) of an administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This Firestore structure is designed to adhere strictly to the core design principles, especially Authorization Independence, Structural Segregation, and secure Queryable Access Patterns (QAPs), while addressing the user's requirements for INR currency, community support, and an admin panel.\n\n**Authorization Independence (CRITICAL):**\n1.  **Donations (`/donations/{donationId}`):** Each `Donation` document explicitly includes the `donorId`. This critical denormalization allows security rules to check `request.auth.uid == resource.data.donorId` directly within the donation document without requiring expensive and complex `get()` calls to a parent `Donor` document. This enables atomic operations and simplifies rule logic considerably.\n2.  **Donors (`/donors/{donorId}`):** The document ID `{donorId}` for a logged-in user is directly mapped to `request.auth.uid`. This path-based ownership provides immediate authorization context, eliminating `get()` calls for personal donor data.\n3.  **Admin Roles (`/app_roles/admin/{uid}`):** Administrator privileges are granted by the *existence* of a document at `/app_roles/admin/{request.auth.uid}`. Security rules can efficiently use `exists(/databases/$(database)/documents/app_roles/admin/$(request.auth.uid))` checks, which are inherently atomic and independent of any other document's content, satisfying the DBAC mandate.\n4.  **Campaign-specific Donation Tiers (`/campaigns/{campaignId}/donation_tiers/{tierId}`):** While these tiers are publicly readable, their structural nesting clearly indicates their relationship to a specific campaign. The `campaignId` is implicitly part of the path, providing context without `get()` calls if more complex, parent-dependent authorization were ever needed (though for public read, it's not strictly for authorization independence, but for clear data ownership).\n\n**Queryable Access Patterns (QAPs - Rules are not Filters):**\n1.  **Public Collections (`/campaigns`, `/beneficiary_communities`, `/transparency_reports`, `/donation_tiers`, `/campaigns/{campaignId}/donation_tiers`):** These collections are designed for public read access. Security rules will simply allow `read: true;`, enabling highly efficient `list` queries without any client-side filtering or complex server-side rule evaluation per document.\n2.  **Donor's Personal Donations (`/donations/{donationId}`):** The `donorId` field within each `Donation` document allows authenticated donors (`request.auth.uid`) to securely `list` their own donations using a simple, efficient query like `db.collection('donations').where('donorId', '==', request.auth.uid)`. The security rule can enforce that any `list` request for `donations` must include a `where('donorId', '==', request.auth.uid)` clause (or be an admin request).\n\n**Structural Segregation & Other Mandates:**\n*   **INR Support:** The `currency` field is present in `Campaign`, `Donation`, and `DonationTier` entities, allowing explicit storage of 'INR' or any other currency, addressing the user's request.\n*   **Community Support:** The `BeneficiaryCommunity` entity and its dedicated collection `/beneficiary_communities` directly address the 'community' aspect, ensuring clear data separation for these entities.\n*   **Admin Panel:** Implemented via the `/app_roles/admin/{uid}` collection for robust, database-backed access control.\n*   **Donation Tiers:** Segregated into `/donation_tiers` for global options and `/campaigns/{campaignId}/donation_tiers` for campaign-specific ones. This maintains homogeneous security posture within each collection (all public read, admin write) and clarifies intent.\n*   **Consistency:** Semantic naming conventions are used for paths and parameters (e.g., `{campaignId}` instead of `{id}`)."
+  }
+}

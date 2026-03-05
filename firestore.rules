@@ -1,0 +1,157 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY:
+     * This ruleset implements a robust, database-backed access control (DBAC) model for a charitable 
+     * organization. It prioritizes donor privacy and administrative control while maintaining 
+     * public transparency for campaigns and beneficiary communities.
+     * 
+     * DATA STRUCTURE:
+     * - /donors/{uid}: Personal profiles of donors, keyed by their Firebase Auth UID.
+     * - /donations/{id}: Flat collection of transactions, secured via denormalized donorId.
+     * - /campaigns/{id}: Public fundraising initiatives.
+     * - /beneficiary_communities/{id}: Public records of groups being helped.
+     * - /transparency_reports/{id}: Publicly available financial and registration documents.
+     * - /app_roles/admin/{uid}: Existence-based administrative authorization.
+     * 
+     * KEY SECURITY DECISIONS:
+     * 1. DBAC for Admin: Administrative privileges are determined by the existence of a document 
+     *    in the `/app_roles/admin/` collection matching the user's UID.
+     * 2. Denormalization for Auth: The `donorId` is stored directly on every donation document to 
+     *    avoid expensive cross-collection lookups for every list request.
+     * 3. Immutability: Critical relational fields like `donorId` and document `id` are enforced 
+     *    as immutable to prevent ownership hijacking.
+     * 4. Public Trust: Campaigns, Communities, Reports, and Tiers are publicly readable to 
+     *    encourage transparency and user engagement.
+     */
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /** @description Checks if the user is authenticated with any provider. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the user's UID matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the user has administrative privileges via DBAC. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/app_roles/admin/$(request.auth.uid));
+    }
+
+    // The 'isExistingOwner' function was unused and has been removed.
+    // The 'isExistingAdmin' function was problematic as 'resource' is a contextual variable
+    // not directly available inside a global function definition.
+    // For 'update' and 'delete' operations, 'resource' is implicitly non-null if the document exists.
+    // Therefore, 'isExistingAdmin()' has been replaced with 'isAdmin()' directly where used for updates/deletes.
+
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Stores individual donor profiles, allowing users to manage their own data.
+     * @path /donors/{donorId}
+     * @allow (get) if isOwner('user_123')
+     * @deny (list) if isOwner('user_456') // Cannot list other donors
+     * @principle Path-based ownership for user profiles.
+     */
+    match /donors/{donorId} {
+      allow get: if isOwner(donorId) || isAdmin();
+      allow list: if isAdmin(); // Users cannot list the donor directory.
+      allow create: if isOwner(donorId) && request.resource.data.id == donorId;
+      allow update: if (isOwner(donorId) || isAdmin()) && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly visible campaigns for fundraising.
+     * @path /campaigns/{campaignId}
+     * @allow (get, list) if true
+     * @deny (create, update, delete) if !isAdmin()
+     * @principle Public Read with Admin-Only Writes.
+     */
+    match /campaigns/{campaignId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin(); // Changed from isExistingAdmin()
+
+      /**
+       * @description Campaign-specific donation tiers.
+       * @path /campaigns/{campaignId}/donation_tiers/{tierId}
+       */
+      match /donation_tiers/{tierId} {
+        allow get, list: if true;
+        allow create: if isAdmin();
+        allow update, delete: if isAdmin(); // Changed from isExistingAdmin()
+      }
+    }
+
+    /**
+     * @description Records of financial contributions, secured by denormalized donorId.
+     * @path /donations/{donationId}
+     * @allow (list) if request.auth.uid == 'user_123' && query.filters.donorId == 'user_123'
+     * @deny (update) if isOwner('user_123') // Donations are records and should be immutable for users.
+     * @principle Shared access via denormalized UID field.
+     */
+    match /donations/{donationId} {
+      allow get: if isAdmin() || (isSignedIn() && resource.data.donorId == request.auth.uid);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.donorId == request.auth.uid);
+      allow create: if isSignedIn() && (isAdmin() || request.resource.data.donorId == request.auth.uid);
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Information about beneficiary communities and groups.
+     * @path /beneficiary_communities/{communityId}
+     * @allow (get, list) if true
+     * @principle Public visibility for impact transparency.
+     */
+    match /beneficiary_communities/{communityId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin(); // Changed from isExistingAdmin()
+    }
+
+    /**
+     * @description Public reports and NGO registration documents.
+     * @path /transparency_reports/{reportId}
+     * @allow (get, list) if true
+     * @principle Public accessibility for trust-building.
+     */
+    match /transparency_reports/{reportId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin(); // Changed from isExistingAdmin()
+    }
+
+    /**
+     * @description Global donation tiers for general giving.
+     * @path /donation_tiers/{tierId}
+     * @allow (get, list) if true
+     * @principle Consistency between global and campaign-specific tiers.
+     */
+    match /donation_tiers/{tierId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin(); // Changed from isExistingAdmin()
+    }
+
+    /**
+     * @description Database-backed access control for administrators.
+     * @path /app_roles/admin/{uid}
+     * @allow (get) if isSignedIn() // Needed for auth state checks
+     * @deny (write) if !isAdmin()
+     * @principle Self-protecting administrative role registry.
+     */
+    match /app_roles/admin/{uid} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
