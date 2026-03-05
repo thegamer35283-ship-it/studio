@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -120,7 +119,7 @@ export function DonationFlow() {
                   <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-white mx-auto mb-4 shadow-lg">
                     <QrCode className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-2xl font-headline">Quick Scan & Pay</CardTitle>
+                  <CardTitle className="text-2xl font-headline">Qr</CardTitle>
                   <CardDescription className="text-white/60">Fastest way to support the Ummah.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 pt-0 relative z-10 text-center flex flex-col items-center">
