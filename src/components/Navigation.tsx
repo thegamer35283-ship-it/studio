@@ -1,9 +1,8 @@
-
 "use client"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Moon, User, LogOut, Shield, Users } from "lucide-react"
+import { Moon, User, LogOut } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase"
 import { signOut } from "firebase/auth"
@@ -49,9 +48,6 @@ export function Navigation() {
               <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
             ) : user ? (
               <div className="flex items-center gap-3">
-                <Link href="/admin" className={`p-2 rounded-full hover:bg-muted transition-colors ${pathname === '/admin' ? 'text-primary' : 'text-muted-foreground'}`}>
-                  <Shield className="w-5 h-5" />
-                </Link>
                 <Button variant="ghost" size="icon" onClick={() => signOut(auth)} className="rounded-full text-destructive">
                   <LogOut className="w-5 h-5" />
                 </Button>
