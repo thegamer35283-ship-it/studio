@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check, ReceiptText } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
@@ -143,7 +143,7 @@ export function DonationFlow() {
                   <div className="w-20 h-20 rounded-[2.5rem] bg-accent flex items-center justify-center text-white mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
                     <QrCode className="w-10 h-10" />
                   </div>
-                  <CardTitle className="text-4xl font-headline mb-3 tracking-tight">Official QR</CardTitle>
+                  <CardTitle className="text-4xl font-headline mb-3 tracking-tight">Qr</CardTitle>
                   <CardDescription className="text-accent text-xl font-bold uppercase tracking-widest">{NAME}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
