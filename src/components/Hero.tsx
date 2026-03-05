@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import Image from "next/image"
 import { ArrowRight, Users, Heart, Globe } from "lucide-react"
+import Link from "next/link"
 
 export function Hero() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-bg')
-  // Fallback to a valid placeholder URL to prevent ReactDOM.preload errors with priority images
   const imageUrl = heroImage?.imageUrl || "https://picsum.photos/seed/hero-fallback/1200/600"
 
   return (
@@ -24,14 +24,14 @@ export function Hero() {
               Empowering 100,000+ Lives in 2026
             </div>
             <h1 className="text-5xl lg:text-7xl font-headline font-bold leading-[1.1] mb-6 text-foreground">
-              Bonds of <span className="text-primary italic">Compassion</span>, Built for Impact.
+              Be the Reason a <span className="text-primary italic">Child Goes to School</span> Today.
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-lg leading-relaxed">
-              Join our global mission to provide education, healthcare, and dignity to those who need it most. Every bond we build creates a lasting future.
+              In the face of crisis, your compassion is the bridge to a better tomorrow. Join a global community dedicated to restoring dignity, health, and hope.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-accent hover:bg-accent/90 text-white px-8 h-14 rounded-full text-lg font-headline font-bold shadow-xl transition-all hover:translate-y-[-2px]">
-                Donate Now <ArrowRight className="ml-2 w-5 h-5" />
+              <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white px-8 h-14 rounded-full text-lg font-headline font-bold shadow-xl transition-all hover:translate-y-[-2px]">
+                <Link href="#donate">Give Hope Now <ArrowRight className="ml-2 w-5 h-5" /></Link>
               </Button>
               <Button size="lg" variant="outline" className="px-8 h-14 rounded-full text-lg font-headline font-bold border-primary text-primary hover:bg-primary/5">
                 Explore Our Impact

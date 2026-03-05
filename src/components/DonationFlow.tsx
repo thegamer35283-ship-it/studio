@@ -8,18 +8,18 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CreditCard, Heart, Apple, Smartphone, Gift } from "lucide-react"
+import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 const PRESETS = [
-  { amount: 10, description: "Provides 5 hot meals for a family in need." },
-  { amount: 50, description: "Covers school supplies for one child for a month." },
-  { amount: 100, description: "Digs a shared clean water well for a small community." }
+  { amount: 1000, description: "Provides 1 week of nutritional support for a family in crisis." },
+  { amount: 4000, description: "Covers school supplies and tuition for one child's education." },
+  { amount: 10000, description: "Funds a sustainable clean water source for an entire village." }
 ]
 
 export function DonationFlow() {
   const { toast } = useToast()
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(50)
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(4000)
   const [customAmount, setCustomAmount] = useState<string>("")
   const [isMonthly, setIsMonthly] = useState(false)
   const [isGift, setIsGift] = useState(false)
@@ -31,7 +31,7 @@ export function DonationFlow() {
       setIsLoading(false)
       toast({
         title: "Contribution Received!",
-        description: `Thank you for your generous gift of $${customAmount || selectedAmount}. May it be a source of blessing.`,
+        description: `Thank you for your generous gift of ₹${customAmount || selectedAmount}. May it be a source of blessing.`,
       })
     }, 1500)
   }
@@ -41,14 +41,19 @@ export function DonationFlow() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-headline font-bold mb-4">Direct Impact, One Step Away</h2>
-            <p className="text-muted-foreground">Every dollar you contribute directly supports ground-level initiatives.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold mb-4">
+              <Sparkles className="w-3 h-3" /> Empowering Change
+            </div>
+            <h2 className="text-4xl font-headline font-bold mb-4">Be the Spark That Changes a Life Today</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Thousands are waiting for a sign of hope. Your contribution isn't just a number; it's a lifeline delivered exactly where it's needed most.
+            </p>
           </div>
 
           <div className="grid lg:grid-cols-5 gap-8">
             <Card className="lg:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden">
               <CardHeader className="bg-primary text-primary-foreground p-8">
-                <CardTitle className="text-2xl font-headline">Select Donation Amount</CardTitle>
+                <CardTitle className="text-2xl font-headline">Select Your Impact</CardTitle>
                 <CardDescription className="text-primary-foreground/80">Choose how you want to make a difference today.</CardDescription>
               </CardHeader>
               <CardContent className="p-8 space-y-8">
@@ -59,18 +64,18 @@ export function DonationFlow() {
                       onClick={() => { setSelectedAmount(preset.amount); setCustomAmount("") }}
                       className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedAmount === preset.amount ? 'border-accent bg-accent/5 ring-4 ring-accent/10' : 'border-border hover:border-primary/50'}`}
                     >
-                      <span className="text-2xl font-headline font-bold">${preset.amount}</span>
+                      <span className="text-xl font-headline font-bold text-center">₹{preset.amount.toLocaleString('en-IN')}</span>
                     </button>
                   ))}
                 </div>
 
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <span className="text-muted-foreground font-bold">$</span>
+                    <span className="text-muted-foreground font-bold">₹</span>
                   </div>
                   <Input
                     type="number"
-                    placeholder="Custom Amount"
+                    placeholder="Enter Custom Amount"
                     className="pl-8 h-14 rounded-xl text-lg font-bold border-2 focus-visible:ring-accent"
                     value={customAmount}
                     onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null) }}
@@ -116,7 +121,7 @@ export function DonationFlow() {
                     disabled={isLoading}
                     className="w-full h-16 rounded-full bg-accent hover:bg-accent/90 text-white font-headline font-bold text-xl shadow-lg transition-all active:scale-95"
                   >
-                    {isLoading ? "Processing..." : `Complete Donation $${customAmount || selectedAmount || '0'}`}
+                    {isLoading ? "Processing..." : `Empower a Life Now: ₹${(customAmount || selectedAmount || '0').toLocaleString()}`}
                   </Button>
                   
                   <div className="grid grid-cols-2 gap-3">
@@ -137,25 +142,28 @@ export function DonationFlow() {
             <div className="lg:col-span-2 space-y-6">
               <div className="p-8 bg-white rounded-3xl shadow-sm border border-border/50">
                 <h4 className="font-headline font-bold text-lg mb-4 flex items-center gap-2 text-primary">
-                  <Heart className="w-5 h-5 fill-accent text-accent" /> Your Impact
+                  <Heart className="w-5 h-5 fill-accent text-accent" /> Your Impact Journey
                 </h4>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Admin & Operations</span>
-                    <span className="font-bold">2.5%</span>
-                  </div>
-                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full w-[2.5%]"></div>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Direct Program Impact</span>
-                    <span className="font-bold text-accent">97.5%</span>
-                  </div>
-                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-accent h-full w-[97.5%]"></div>
+                <div className="space-y-6">
+                  <div className="relative pl-6 border-l-2 border-accent/20 space-y-4">
+                    <div className="relative">
+                      <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-accent" />
+                      <p className="text-sm font-bold">1. Immediate Support</p>
+                      <p className="text-xs text-muted-foreground">Your funds are deployed to the field within 48 hours.</p>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-accent/40" />
+                      <p className="text-sm font-bold">2. Local Empowerment</p>
+                      <p className="text-xs text-muted-foreground">We partner with local communities to ensure dignity.</p>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-accent/20" />
+                      <p className="text-sm font-bold">3. Transparent Reporting</p>
+                      <p className="text-xs text-muted-foreground">Receive a detailed impact report on your contribution.</p>
+                    </div>
                   </div>
                 </div>
-                <p className="mt-6 text-xs text-muted-foreground leading-relaxed italic">
+                <p className="mt-8 text-xs text-muted-foreground leading-relaxed italic">
                   "Benevolent Bonds follows strict Shariah guidelines for Zakat and Sadaqah distribution. 100% of Zakat reaches eligible recipients."
                 </p>
               </div>
@@ -173,7 +181,7 @@ export function DonationFlow() {
                     <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <Heart className="w-3 h-3 text-primary" />
                     </div>
-                    <span>Registered 501(c)(3) Non-Profit</span>
+                    <span>Registered Charitable Foundation</span>
                   </li>
                 </ul>
               </div>
