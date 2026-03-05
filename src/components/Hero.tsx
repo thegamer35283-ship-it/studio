@@ -8,6 +8,8 @@ import { ArrowRight, Users, Heart, Globe } from "lucide-react"
 
 export function Hero() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-bg')
+  // Fallback to a valid placeholder URL to prevent ReactDOM.preload errors with priority images
+  const imageUrl = heroImage?.imageUrl || "https://picsum.photos/seed/hero-fallback/1200/600"
 
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden">
@@ -60,11 +62,11 @@ export function Hero() {
 
           <div className="relative h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
             <Image
-              src={heroImage?.imageUrl || ""}
-              alt={heroImage?.description || ""}
+              src={imageUrl}
+              alt={heroImage?.description || "Charity impact"}
               fill
               className="object-cover"
-              data-ai-hint={heroImage?.imageHint}
+              data-ai-hint={heroImage?.imageHint || "children charity"}
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>

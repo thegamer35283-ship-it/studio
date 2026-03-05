@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Children smiling in a classroom environment",
+      "imageUrl": "https://picsum.photos/seed/benevolent-hero/1200/600",
+      "imageHint": "children education charity"
+    },
+    {
+      "id": "impact-1",
+      "description": "Clean water well in a village",
+      "imageUrl": "https://picsum.photos/seed/water-well/600/400",
+      "imageHint": "clean water well"
+    },
+    {
+      "id": "impact-2",
+      "description": "Distribution of food packages",
+      "imageUrl": "https://picsum.photos/seed/food-aid/600/400",
+      "imageHint": "food distribution charity"
+    },
+    {
+      "id": "impact-3",
+      "description": "Medical clinic providing care",
+      "imageUrl": "https://picsum.photos/seed/medical-aid/600/400",
+      "imageHint": "medical clinic charity"
+    }
+  ]
 }
