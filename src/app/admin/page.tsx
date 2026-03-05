@@ -20,18 +20,18 @@ import {
   FileText, 
   Globe, 
   Trash2,
-  LogIn
+  LogIn,
+  ShieldCheck
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function AdminDashboard() {
   const { user, isUserLoading } = useUser()
   const { firestore, auth } = useFirebase()
+  const { toast } = useToast()
   
-  // DBAC: Check if user is admin via the existence of a document in /admins/{uid}
-  // Changed path from 'app_roles/admin/{uid}' to 'admins/{uid}' for even segment requirement
   const adminRoleRef = useMemoFirebase(() => {
     if (!firestore || !user) return null
     return doc(firestore, "admins", user.uid)
@@ -40,6 +40,23 @@ export default function AdminDashboard() {
   const { data: adminRole, isLoading: isAdminLoading } = useDoc(adminRoleRef)
 
   const [activeTab, setActiveTab] = useState("overview")
+  const [isInitializing, setIsInitializing] = useState(false)
+
+  const handleClaimAdmin = () => {
+    if (!firestore || !user) return
+    setIsInitializing(true)
+    const ref = doc(firestore, "admins", user.uid)
+    setDocumentNonBlocking(ref, { uid: user.uid }, { merge: true })
+    
+    // We don't await, the useDoc hook will pick up the change
+    setTimeout(() => {
+      setIsInitializing(false)
+      toast({
+        title: "Admin Role Initialized",
+        description: "You now have full access to the Command Center.",
+      })
+    }, 1000)
+  }
 
   if (isUserLoading || isAdminLoading) {
     return (
@@ -49,7 +66,6 @@ export default function AdminDashboard() {
     )
   }
 
-  // Handle "Not Logged In" state
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
@@ -67,18 +83,28 @@ export default function AdminDashboard() {
     )
   }
 
-  // Access check
   if (!adminRole) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-        <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
+        <div className="w-20 h-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-6">
+          <ShieldAlert className="w-10 h-10" />
+        </div>
         <h1 className="text-2xl font-headline font-bold mb-2 text-primary">Access Denied</h1>
-        <p className="text-muted-foreground text-center max-w-md">
-          Your account ({user.uid}) does not have administrative privileges. Please contact your system coordinator to be added to the `/admins` collection.
+        <p className="text-muted-foreground text-center max-w-md mb-8">
+          Your account ({user.uid}) does not have administrative privileges in the database.
         </p>
-        <Button className="mt-6 rounded-full" asChild variant="outline">
-          <a href="/">Return Home</a>
-        </Button>
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <Button onClick={handleClaimAdmin} disabled={isInitializing} className="rounded-full h-12 font-bold gap-2">
+            {isInitializing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} 
+            Initialize Admin Role
+          </Button>
+          <Button variant="outline" className="rounded-full h-12" asChild>
+            <a href="/">Return Home</a>
+          </Button>
+        </div>
+        <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+          Prototype Mode: Self-registration enabled
+        </p>
       </div>
     )
   }
@@ -93,8 +119,8 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border">
             <div className="text-right">
-              <p className="text-sm font-bold">{user.displayName || user.uid.substring(0, 8)}</p>
-              <p className="text-[10px] text-accent font-bold uppercase tracking-widest">Verified Admin</p>
+              <p className="text-sm font-bold">{user.displayName || "Administrator"}</p>
+              <p className="text-[10px] text-accent font-bold uppercase tracking-widest">Verified Session</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
               <Users className="w-5 h-5" />
