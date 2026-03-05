@@ -20,7 +20,6 @@ import {
   FileText, 
   Globe, 
   Trash2,
-  Calendar,
   LogIn
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -31,10 +30,11 @@ export default function AdminDashboard() {
   const { user, isUserLoading } = useUser()
   const { firestore, auth } = useFirebase()
   
-  // DBAC: Check if user is admin via the existence of a document in /app_roles/admin/{uid}
+  // DBAC: Check if user is admin via the existence of a document in /admins/{uid}
+  // Changed path from 'app_roles/admin/{uid}' to 'admins/{uid}' for even segment requirement
   const adminRoleRef = useMemoFirebase(() => {
     if (!firestore || !user) return null
-    return doc(firestore, "app_roles", "admin", user.uid)
+    return doc(firestore, "admins", user.uid)
   }, [firestore, user])
   
   const { data: adminRole, isLoading: isAdminLoading } = useDoc(adminRoleRef)
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
         <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
         <h1 className="text-2xl font-headline font-bold mb-2 text-primary">Access Denied</h1>
         <p className="text-muted-foreground text-center max-w-md">
-          Your account ({user.uid}) does not have administrative privileges. Please contact your system coordinator to be added to the `/app_roles/admin` collection.
+          Your account ({user.uid}) does not have administrative privileges. Please contact your system coordinator to be added to the `/admins` collection.
         </p>
         <Button className="mt-6 rounded-full" asChild variant="outline">
           <a href="/">Return Home</a>

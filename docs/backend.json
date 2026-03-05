@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Donor": {
@@ -438,7 +439,7 @@
           "schema": {
             "$ref": "#/backend/entities/Donor"
           },
-          "description": "Stores individual donor profiles. The `{donorId}` matches the authenticated user's `uid` for logged-in donors, or a unique ID for guest donors. Accessible by the donor themselves and administrators. The `id` field inside the document explicitly identifies the donor, making it secure and authorization independent via path matching."
+          "description": "Stores individual donor profiles. The `{donorId}` matches the authenticated user's `uid` for logged-in donors."
         }
       },
       {
@@ -448,7 +449,7 @@
           "schema": {
             "$ref": "#/backend/entities/Campaign"
           },
-          "description": "Main collection for charitable campaigns. Publicly readable for all users to view, list, and discover campaigns. Only administrators can create, update, or delete campaign records. Includes a 'currency' field to support different currencies like 'INR'."
+          "description": "Main collection for charitable campaigns. Publicly readable."
         }
       },
       {
@@ -458,7 +459,7 @@
           "schema": {
             "$ref": "#/backend/entities/Donation"
           },
-          "description": "Records individual donation transactions. Accessible by the specific donor (`resource.data.donorId == request.auth.uid`) and administrators. The `donorId` field is denormalized within each document for Authorization Independence and secure QAPs for donor-specific listings. Includes a 'currency' field to explicitly store 'INR' or other currencies."
+          "description": "Records individual donation transactions. Accessible by specific donor and admins."
         }
       },
       {
@@ -468,7 +469,7 @@
           "schema": {
             "$ref": "#/backend/entities/BeneficiaryCommunity"
           },
-          "description": "Contains details about the communities or groups that benefit from campaigns. Publicly readable for transparency and context. Only administrators can manage these records, addressing the 'add commety' request."
+          "description": "Contains details about the communities or groups that benefit from campaigns."
         }
       },
       {
@@ -478,7 +479,7 @@
           "schema": {
             "$ref": "#/backend/entities/TransparencyReport"
           },
-          "description": "Stores links and metadata for public transparency documents and reports (e.g., financial reports, NGO registration). Publicly readable to build trust. Only administrators can create, update, or delete these records."
+          "description": "Stores links and metadata for public transparency documents."
         }
       },
       {
@@ -488,46 +489,29 @@
           "schema": {
             "$ref": "#/backend/entities/DonationTier"
           },
-          "description": "Defines global or default preset donation amounts and their impact. Publicly readable for display on general donation pages. Only administrators can manage these. Includes a 'currency' field to support different currencies like 'INR'."
+          "description": "Defines global preset donation amounts."
         }
       },
       {
-        "path": "/campaigns/{campaignId}/donation_tiers/{tierId}",
-        "definition": {
-          "entityName": "DonationTier",
-          "schema": {
-            "$ref": "#/backend/entities/DonationTier"
-          },
-          "description": "Defines preset donation amounts and their impact descriptions specific to a particular campaign. Publicly readable. Only administrators can manage these. The `campaignId` is implicitly part of the path and would be explicitly stored in the document for data consistency. Includes a 'currency' field.",
-          "params": [
-            {
-              "name": "campaignId",
-              "description": "The unique identifier of the parent campaign."
-            },
-            {
-              "name": "tierId",
-              "description": "The unique identifier of the donation tier."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/app_roles/admin/{uid}",
+        "path": "/admins/{uid}",
         "definition": {
           "entityName": "AdminRole",
           "schema": {
-            "$ref": "#/backend/entities/AdminRole"
+            "type": "object",
+            "properties": {
+              "uid": { "type": "string" }
+            }
           },
-          "description": "This collection implements Database-Backed Access Control (DBAC) for administrators. The existence of a document where `{uid}` matches `request.auth.uid` grants administrative privileges across the application. This addresses the 'admin panel' request using the 'existence over content' principle.",
+          "description": "Implements DBAC for administrators. Existence of a document grants privileges.",
           "params": [
             {
               "name": "uid",
-              "description": "The unique user ID (Firebase Authentication UID) of an administrator."
+              "description": "The unique user ID of an administrator."
             }
           ]
         }
       }
     ],
-    "reasoning": "This Firestore structure is designed to adhere strictly to the core design principles, especially Authorization Independence, Structural Segregation, and secure Queryable Access Patterns (QAPs), while addressing the user's requirements for INR currency, community support, and an admin panel.\n\n**Authorization Independence (CRITICAL):**\n1.  **Donations (`/donations/{donationId}`):** Each `Donation` document explicitly includes the `donorId`. This critical denormalization allows security rules to check `request.auth.uid == resource.data.donorId` directly within the donation document without requiring expensive and complex `get()` calls to a parent `Donor` document. This enables atomic operations and simplifies rule logic considerably.\n2.  **Donors (`/donors/{donorId}`):** The document ID `{donorId}` for a logged-in user is directly mapped to `request.auth.uid`. This path-based ownership provides immediate authorization context, eliminating `get()` calls for personal donor data.\n3.  **Admin Roles (`/app_roles/admin/{uid}`):** Administrator privileges are granted by the *existence* of a document at `/app_roles/admin/{request.auth.uid}`. Security rules can efficiently use `exists(/databases/$(database)/documents/app_roles/admin/$(request.auth.uid))` checks, which are inherently atomic and independent of any other document's content, satisfying the DBAC mandate.\n4.  **Campaign-specific Donation Tiers (`/campaigns/{campaignId}/donation_tiers/{tierId}`):** While these tiers are publicly readable, their structural nesting clearly indicates their relationship to a specific campaign. The `campaignId` is implicitly part of the path, providing context without `get()` calls if more complex, parent-dependent authorization were ever needed (though for public read, it's not strictly for authorization independence, but for clear data ownership).\n\n**Queryable Access Patterns (QAPs - Rules are not Filters):**\n1.  **Public Collections (`/campaigns`, `/beneficiary_communities`, `/transparency_reports`, `/donation_tiers`, `/campaigns/{campaignId}/donation_tiers`):** These collections are designed for public read access. Security rules will simply allow `read: true;`, enabling highly efficient `list` queries without any client-side filtering or complex server-side rule evaluation per document.\n2.  **Donor's Personal Donations (`/donations/{donationId}`):** The `donorId` field within each `Donation` document allows authenticated donors (`request.auth.uid`) to securely `list` their own donations using a simple, efficient query like `db.collection('donations').where('donorId', '==', request.auth.uid)`. The security rule can enforce that any `list` request for `donations` must include a `where('donorId', '==', request.auth.uid)` clause (or be an admin request).\n\n**Structural Segregation & Other Mandates:**\n*   **INR Support:** The `currency` field is present in `Campaign`, `Donation`, and `DonationTier` entities, allowing explicit storage of 'INR' or any other currency, addressing the user's request.\n*   **Community Support:** The `BeneficiaryCommunity` entity and its dedicated collection `/beneficiary_communities` directly address the 'community' aspect, ensuring clear data separation for these entities.\n*   **Admin Panel:** Implemented via the `/app_roles/admin/{uid}` collection for robust, database-backed access control.\n*   **Donation Tiers:** Segregated into `/donation_tiers` for global options and `/campaigns/{campaignId}/donation_tiers` for campaign-specific ones. This maintains homogeneous security posture within each collection (all public read, admin write) and clarifies intent.\n*   **Consistency:** Semantic naming conventions are used for paths and parameters (e.g., `{campaignId}` instead of `{id}`)."
+    "reasoning": "Updated path /app_roles/admin/{uid} to /admins/{uid} to ensure a valid even-segment document reference for DBAC checks."
   }
 }
