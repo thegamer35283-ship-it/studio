@@ -29,6 +29,12 @@
       "description": "Local doctor caring for a child in a clean, bright clinic, professional photography, hopeful expression",
       "imageUrl": "https://picsum.photos/seed/clinic-hope/600/400",
       "imageHint": "medical hope"
+    },
+    {
+      "id": "phonepe-qr",
+      "description": "PhonePe QR Code for Sahil Ansari, professional black background, purple PhonePe logo, scan and pay using PhonePe app, verified humanitarian account",
+      "imageUrl": "https://picsum.photos/seed/phonepe-sahil-qr/400/500",
+      "imageHint": "phonepe qr"
     }
   ]
 }
