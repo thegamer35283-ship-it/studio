@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -5,8 +6,8 @@ import { Navigation } from "@/components/Navigation"
 import { Footer } from "@/components/Footer"
 
 export const metadata: Metadata = {
-  title: 'Benevolent Bonds | Global Islamic Charitable Fund',
-  description: 'Empowering humanity through transparent, direct, and impactful charitable initiatives across the globe.',
+  title: 'Islamic Group 313 | Donation in Islamic Work',
+  description: 'Empowering the Ummah through transparent, direct, and impactful charitable initiatives across the globe.',
 };
 
 export default function RootLayout({

@@ -1,6 +1,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-main",
+      "description": "Islamic Group 313 branding with Kaaba and Mosque illustration, night sky with moon and stars, elegant gold and silver typography",
+      "imageUrl": "https://picsum.photos/seed/islamic-group-313/1024/1024",
+      "imageHint": "kaaba mosque islamic"
+    },
+    {
       "id": "hero-bg",
       "description": "Smiling girl in a classroom, candid moment, soft morning sunlight, hopeful mood, cinematic lighting",
       "imageUrl": "https://picsum.photos/seed/hopeful-child/1200/600",

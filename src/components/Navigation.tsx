@@ -1,8 +1,9 @@
+
 "use client"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Heart } from "lucide-react"
+import { Moon, Star } from "lucide-react"
 import { usePathname } from "next/navigation"
 
 export function Navigation() {
@@ -19,11 +20,11 @@ export function Navigation() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
-            <Heart className="w-6 h-6 fill-current" />
+            <Moon className="w-6 h-6 fill-current" />
           </div>
           <div className="flex flex-col -space-y-1">
-            <span className="font-headline text-2xl font-bold text-primary tracking-tight">Benevolent Bonds</span>
-            <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em] ml-0.5">Global Charity</span>
+            <span className="font-headline text-2xl font-bold text-primary tracking-tight">Islamic Group 313</span>
+            <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em] ml-0.5">Donation in Islamic Work</span>
           </div>
         </Link>
         
