@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -7,20 +6,23 @@ import { Heart } from "lucide-react"
 
 export function Navigation() {
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-xl">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg transition-transform group-hover:scale-105">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-xl transition-all duration-500 group-hover:rotate-12 group-hover:scale-110">
             <Heart className="w-6 h-6 fill-current" />
           </div>
-          <span className="font-headline text-2xl font-bold text-primary">Benevolent Bonds</span>
+          <div className="flex flex-col -space-y-1">
+            <span className="font-headline text-2xl font-bold text-primary tracking-tight">Benevolent Bonds</span>
+            <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em] ml-0.5">Global Charity</span>
+          </div>
         </Link>
         
-        <div className="hidden md:flex items-center gap-8">
-          <Link href="#impact" className="text-sm font-medium hover:text-primary transition-colors">Our Impact</Link>
-          <Link href="#transparency" className="text-sm font-medium hover:text-primary transition-colors">Transparency</Link>
-          <Link href="#campaigns" className="text-sm font-medium hover:text-primary transition-colors">Campaigns</Link>
-          <Button asChild className="bg-accent text-white hover:bg-accent/90 rounded-full font-headline font-semibold px-6 shadow-md transition-all hover:translate-y-[-2px]">
+        <div className="hidden md:flex items-center gap-10">
+          <Link href="#impact" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Our Impact</Link>
+          <Link href="#transparency" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Transparency</Link>
+          <Link href="#campaigns" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Campaigns</Link>
+          <Button asChild className="bg-primary text-white hover:bg-primary/90 rounded-full font-headline font-bold px-8 h-12 shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-primary/20">
             <Link href="#donate">Donate Now</Link>
           </Button>
         </div>
