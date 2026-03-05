@@ -2,8 +2,8 @@
 "use client"
 
 import { useState } from "react"
-import { useFirebase, useUser, useDoc, useCollection, useMemoFirebase, initiateAnonymousSignIn } from "@/firebase"
-import { collection, doc, query, orderBy, limit } from "firebase/firestore"
+import { useFirebase, useUser, useDoc, useCollection, useMemoFirebase } from "@/firebase"
+import { collection, doc, query, orderBy } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,12 +30,15 @@ import {
   ArrowUpRight,
   Fingerprint,
   Contact,
-  Shield
+  Shield,
+  KeyRound,
+  Mail
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { signInWithEmailAndPassword } from "firebase/auth"
 
 export default function AdminDashboard() {
   const { user, isUserLoading } = useUser()
@@ -87,21 +90,28 @@ export default function AdminDashboard() {
   const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
 
   const [activeTab, setActiveTab] = useState("overview")
-  const [isInitializing, setIsInitializing] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
-  const handleClaimAdmin = () => {
-    if (!firestore || !user) return
-    setIsInitializing(true)
-    const ref = doc(firestore, "admins", user.uid)
-    setDocumentNonBlocking(ref, { uid: user.uid }, { merge: true })
-    
-    setTimeout(() => {
-      setIsInitializing(false)
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoggingIn(true)
+    try {
+      await signInWithEmailAndPassword(auth!, email, password)
       toast({
-        title: "Admin Role Initialized",
-        description: "You now have full access to the Command Center.",
+        title: "Session Verified",
+        description: "Welcome back to the Command Center.",
       })
-    }, 1500)
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Failed",
+        description: "Invalid credentials. Unauthorized access is recorded.",
+      })
+    } finally {
+      setIsLoggingIn(false)
+    }
   }
 
   if (isUserLoading || isAdminLoading) {
@@ -115,24 +125,64 @@ export default function AdminDashboard() {
     )
   }
 
+  // LOGIN SCREEN
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full bg-primary/5 -z-10 opacity-50" />
-        <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary mb-8 shadow-2xl border border-primary/20">
-          <ShieldAlert className="w-12 h-12" />
+        <div className="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-primary/10 text-center animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white mx-auto mb-8 shadow-xl">
+            <KeyRound className="w-10 h-10" />
+          </div>
+          <h1 className="text-3xl font-headline font-bold mb-2 text-primary">Admin Login</h1>
+          <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+            Authorized personnel only. Access to the humanitarian ledger requires verified credentials.
+          </p>
+          
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email ID</Label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  className="rounded-2xl h-14 pl-12 border-muted/50 focus-visible:ring-primary" 
+                  placeholder="admin@group313.org"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Security Key</Label>
+              <div className="relative">
+                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
+                  className="rounded-2xl h-14 pl-12 border-muted/50 focus-visible:ring-primary"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+            <Button type="submit" disabled={isLoggingIn} className="w-full rounded-full h-16 font-bold text-lg gap-3 shadow-xl hover:scale-[1.02] transition-transform bg-primary">
+              {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
+              Access Command Center
+            </Button>
+          </form>
+
+          <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
+            Secure Node: {user ? 'Authenticated' : 'Offline'}
+          </p>
         </div>
-        <h1 className="text-4xl font-headline font-bold mb-4 text-primary">Admin Command Center</h1>
-        <p className="text-muted-foreground text-center max-w-md mb-10 leading-relaxed">
-          Authorized personnel only. Access to the humanitarian ledger requires a verified session.
-        </p>
-        <Button onClick={() => initiateAnonymousSignIn(auth)} className="rounded-full px-12 h-16 font-bold text-xl gap-3 shadow-xl hover:scale-105 transition-transform">
-          <LogIn className="w-6 h-6" /> Access Dashboard
-        </Button>
       </div>
     )
   }
 
+  // UNAUTHORIZED SCREEN (If logged in but not an admin)
   if (!adminRole) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
@@ -140,27 +190,24 @@ export default function AdminDashboard() {
           <div className="w-20 h-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-8">
             <ShieldAlert className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Unauthorized Access</h1>
-          <p className="text-muted-foreground mb-8 text-sm">
-            Your account (<span className="font-mono text-[10px]">{user.uid}</span>) is not registered as an administrator in our humanitarian ledger.
+          <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Access Denied</h1>
+          <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+            Account (<span className="font-mono text-[10px]">{user.email}</span>) is not recognized as a registered administrator in the humanitarian ledger.
           </p>
           <div className="flex flex-col gap-4 w-full">
-            <Button onClick={handleClaimAdmin} disabled={isInitializing} className="rounded-full h-14 font-bold gap-3 text-lg">
-              {isInitializing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />} 
-              Initialize Admin Role
-            </Button>
             <Button variant="outline" className="rounded-full h-14 border-2" asChild>
-              <a href="/">Exit to Home</a>
+              <a href="/">Return to Public Area</a>
             </Button>
           </div>
           <p className="mt-10 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
-            Prototype Environment: Authorization override available
+            Contact Head Admin for Node Authorization
           </p>
         </div>
       </div>
     )
   }
 
+  // DASHBOARD CONTENT
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="container mx-auto py-12 px-4 max-w-7xl">
@@ -178,14 +225,14 @@ export default function AdminDashboard() {
           
           <div className="flex items-center gap-4 bg-white p-4 rounded-[2rem] shadow-xl border border-border/50 group hover:border-primary/30 transition-colors">
             <div className="text-right">
-              <p className="text-sm font-bold text-primary">{user.displayName || "Head Administrator"}</p>
+              <p className="text-sm font-bold text-primary">{user.email}</p>
               <div className="flex items-center justify-end gap-1.5 mt-0.5">
                 <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                 <p className="text-[10px] text-accent font-black uppercase tracking-[0.2em]">Verified Secure</p>
               </div>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
-              <Users className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6" />
             </div>
           </div>
         </div>

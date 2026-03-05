@@ -75,9 +75,9 @@ service cloud.firestore {
     match /admins/{uid} {
       allow get: if isSignedIn();
       allow list: if isAdmin();
-      // Allow users to register themselves as admins for prototype purposes
-      allow create: if isOwner(uid);
-      allow update, delete: if isAdmin();
+      // Only allow creation by existing admins for high security
+      // (Except for initial setup if no admins exist - handled via console usually)
+      allow create, update, delete: if isAdmin();
     }
   }
 }
