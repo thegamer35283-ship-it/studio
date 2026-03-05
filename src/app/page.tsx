@@ -3,6 +3,7 @@ import { Navigation } from "@/components/Navigation"
 import { Hero } from "@/components/Hero"
 import { TrustSignals } from "@/components/TrustSignals"
 import { DonationFlow } from "@/components/DonationFlow"
+import { CommunitySection } from "@/components/CommunitySection"
 import { ImpactNarratives } from "@/components/ImpactNarratives"
 import { Footer } from "@/components/Footer"
 
@@ -14,6 +15,7 @@ export default function Home() {
         <Hero />
         <TrustSignals />
         <DonationFlow />
+        <CommunitySection />
         <ImpactNarratives />
       </main>
       <Footer />

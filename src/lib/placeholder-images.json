@@ -2,27 +2,27 @@
   "placeholderImages": [
     {
       "id": "hero-bg",
-      "description": "Children smiling in a classroom environment",
-      "imageUrl": "https://picsum.photos/seed/benevolent-hero/1200/600",
-      "imageHint": "children education charity"
+      "description": "Smiling girl in a classroom, candid moment, soft morning sunlight, hopeful mood, cinematic lighting",
+      "imageUrl": "https://picsum.photos/seed/hopeful-child/1200/600",
+      "imageHint": "hopeful education"
     },
     {
       "id": "impact-1",
-      "description": "Clean water well in a village",
-      "imageUrl": "https://picsum.photos/seed/water-well/600/400",
-      "imageHint": "clean water well"
+      "description": "Community gathered around a new clean water source, empowering moment, natural sunlight",
+      "imageUrl": "https://picsum.photos/seed/water-community/600/400",
+      "imageHint": "community water"
     },
     {
       "id": "impact-2",
-      "description": "Distribution of food packages",
-      "imageUrl": "https://picsum.photos/seed/food-aid/600/400",
-      "imageHint": "food distribution charity"
+      "description": "Family receiving food aid with dignity, bright and hopeful atmosphere, shallow depth of field",
+      "imageUrl": "https://picsum.photos/seed/dignified-aid/600/400",
+      "imageHint": "empowering aid"
     },
     {
       "id": "impact-3",
-      "description": "Medical clinic providing care",
-      "imageUrl": "https://picsum.photos/seed/medical-aid/600/400",
-      "imageHint": "medical clinic charity"
+      "description": "Local doctor caring for a child in a clean, bright clinic, professional photography, hopeful expression",
+      "imageUrl": "https://picsum.photos/seed/clinic-hope/600/400",
+      "imageHint": "medical hope"
     }
   ]
 }
