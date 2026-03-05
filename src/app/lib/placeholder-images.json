@@ -2,10 +2,16 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-main",
+      "description": "Islamic Group 313 branding with Kaaba and Mosque illustration, night sky with moon and stars, elegant gold and silver typography",
+      "imageUrl": "https://picsum.photos/seed/islamic-group-313/1024/1024",
+      "imageHint": "kaaba mosque islamic"
+    },
+    {
       "id": "hero-bg",
-      "description": "Children smiling in a classroom environment",
-      "imageUrl": "https://picsum.photos/seed/benevolent-hero/1200/600",
-      "imageHint": "children education charity"
+      "description": "A beautiful mosque at night under a starry sky with a crescent moon, cinematic lighting",
+      "imageUrl": "https://picsum.photos/seed/islamic-night-bg/1920/1080",
+      "imageHint": "mosque night"
     },
     {
       "id": "impact-1",
