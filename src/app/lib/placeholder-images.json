@@ -3,9 +3,9 @@
   "placeholderImages": [
     {
       "id": "hero-main",
-      "description": "Islamic Group 313 branding with Kaaba and Mosque illustration, night sky with moon and stars, elegant gold and silver typography",
-      "imageUrl": "https://picsum.photos/seed/islamic-group-313/1024/1024",
-      "imageHint": "kaaba mosque islamic"
+      "description": "A group of children in a rural community receiving books and food, smiling and hopeful, cinematic lighting",
+      "imageUrl": "https://picsum.photos/seed/needy-community-help/1024/1024",
+      "imageHint": "needy children charity"
     },
     {
       "id": "hero-bg",
@@ -15,21 +15,21 @@
     },
     {
       "id": "impact-1",
-      "description": "Clean water well in a village",
-      "imageUrl": "https://picsum.photos/seed/water-well/600/400",
-      "imageHint": "clean water well"
+      "description": "An elderly person receiving medical care in a community clinic, respectful and dignified",
+      "imageUrl": "https://picsum.photos/seed/elderly-care-india/600/400",
+      "imageHint": "elderly needy care"
     },
     {
       "id": "impact-2",
-      "description": "Distribution of food packages",
-      "imageUrl": "https://picsum.photos/seed/food-aid/600/400",
-      "imageHint": "food distribution charity"
+      "description": "Clean water distribution in a drought-affected village, people gathered around a new well",
+      "imageUrl": "https://picsum.photos/seed/water-well-village/600/400",
+      "imageHint": "village water aid"
     },
     {
       "id": "impact-3",
-      "description": "Medical clinic providing care",
-      "imageUrl": "https://picsum.photos/seed/medical-aid/600/400",
-      "imageHint": "medical clinic charity"
+      "description": "Distribution of warm blankets and clothing to families in need during winter",
+      "imageUrl": "https://picsum.photos/seed/winter-relief-aid/600/400",
+      "imageHint": "charity distribution people"
     }
   ]
 }
