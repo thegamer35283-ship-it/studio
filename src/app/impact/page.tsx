@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ImpactNarratives } from "@/components/ImpactNarratives"
@@ -13,15 +14,15 @@ export default function ImpactPage() {
           </div>
           <h1 className="text-5xl font-headline font-bold mb-6">The Collective Impact</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Witness the transformation powered by your compassion. In 2026, we've strengthened more bonds than ever before.
+            Witness the transformation powered by your compassion. Our journey begins with your support.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
             {[
-              { label: "Lives Impacted", value: "124,000+", icon: <Users className="w-5 h-5" /> },
-              { label: "Villages Served", value: "450", icon: <Globe className="w-5 h-5" /> },
-              { label: "Education Funds", value: "₹2.4 Cr", icon: <Heart className="w-5 h-5" /> },
-              { label: "Global Reach", value: "18 Countries", icon: <Globe className="w-5 h-5" /> }
+              { label: "Lives Impacted", value: "0", icon: <Users className="w-5 h-5" /> },
+              { label: "Villages Served", value: "0", icon: <Globe className="w-5 h-5" /> },
+              { label: "Education Funds", value: "₹0", icon: <Heart className="w-5 h-5" /> },
+              { label: "Global Reach", value: "0 Countries", icon: <Globe className="w-5 h-5" /> }
             ].map((stat, i) => (
               <div key={i} className="p-6 bg-white rounded-3xl shadow-sm border border-accent/10">
                 <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center mx-auto mb-4">

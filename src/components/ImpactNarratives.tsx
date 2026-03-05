@@ -11,13 +11,14 @@ import { Sparkles, RefreshCcw } from "lucide-react"
 import { generateImpactStatements, type GenerateImpactStatementsOutput } from "@/ai/flows/generate-impact-statements-flow"
 
 export function ImpactNarratives() {
-  const [campaign, setCampaign] = useState("Child Education")
-  const [tier, setTier] = useState("$50")
-  const [goal, setGoal] = useState("provides school supplies for one child for a year")
+  const [campaign, setCampaign] = useState("")
+  const [tier, setTier] = useState("")
+  const [goal, setGoal] = useState("")
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<GenerateImpactStatementsOutput | null>(null)
 
   const handleGenerate = async () => {
+    if (!campaign || !tier || !goal) return
     setLoading(true)
     try {
       const output = await generateImpactStatements({
@@ -52,6 +53,7 @@ export function ImpactNarratives() {
                   <Label>Campaign Name</Label>
                   <Input 
                     value={campaign} 
+                    placeholder="e.g. Winter Relief"
                     onChange={(e) => setCampaign(e.target.value)} 
                     className="rounded-xl"
                   />
@@ -60,6 +62,7 @@ export function ImpactNarratives() {
                   <Label>Donation Amount/Tier</Label>
                   <Input 
                     value={tier} 
+                    placeholder="e.g. ₹1000"
                     onChange={(e) => setTier(e.target.value)} 
                     className="rounded-xl"
                   />
@@ -68,13 +71,14 @@ export function ImpactNarratives() {
                   <Label>What does this achieve?</Label>
                   <Textarea 
                     value={goal} 
+                    placeholder="e.g. provides warm blankets for a family of four"
                     onChange={(e) => setGoal(e.target.value)} 
                     className="rounded-xl min-h-[100px]"
                   />
                 </div>
                 <Button 
                   onClick={handleGenerate} 
-                  disabled={loading}
+                  disabled={loading || !campaign || !tier || !goal}
                   className="w-full h-12 rounded-full bg-primary text-white font-headline font-bold"
                 >
                   {loading ? (

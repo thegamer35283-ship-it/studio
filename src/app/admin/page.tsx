@@ -166,10 +166,10 @@ export default function AdminDashboard() {
           <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {[
-                { label: "Total Revenue", value: "₹52.1M", icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
-                { label: "Active Nodes", value: "24 Projects", icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
-                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: "128 Members", color: "text-primary", bg: "bg-primary/5" },
-                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: "8 Regions", color: "text-accent", bg: "bg-accent/5" }
+                { label: "Total Revenue", value: "₹0", icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
+                { label: "Active Nodes", value: "0 Projects", icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
+                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: "0 Members", color: "text-primary", bg: "bg-primary/5" },
+                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: "0 Regions", color: "text-accent", bg: "bg-accent/5" }
               ].map((stat, i) => (
                 <Card key={i} className="border-none shadow-xl rounded-[2.5rem] hover-lift transition-all overflow-hidden relative group">
                   <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} -mr-8 -mt-8 rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
@@ -191,28 +191,9 @@ export default function AdminDashboard() {
                   <CardDescription>Real-time updates from across the Islamic Group 313 network.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {[
-                      { type: "Donation", user: "Zaid Khan", amount: "₹15,000", time: "2 mins ago" },
-                      { type: "Project", user: "Village A Well", amount: "Completed", time: "1 hour ago" },
-                      { type: "Admin", user: "System", amount: "Audit Started", time: "3 hours ago" }
-                    ].map((act, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                             <HandHelping className="w-4 h-4 text-accent" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-primary">{act.user}</p>
-                            <p className="text-xs text-muted-foreground">{act.type}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-black text-primary">{act.amount}</p>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold">{act.time}</p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="py-12 text-center text-muted-foreground italic flex flex-col items-center gap-3">
+                    <HandHelping className="w-12 h-12 opacity-20" />
+                    <p>No recent activity detected in the humanitarian ledger.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -227,19 +208,19 @@ export default function AdminDashboard() {
                   <div>
                     <div className="flex justify-between text-xs mb-2 font-bold uppercase tracking-widest text-white/80">
                       <span>Fundraising Goal</span>
-                      <span>₹8.5M / ₹10M</span>
+                      <span>₹0 / ₹10M</span>
                     </div>
                     <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-accent w-[85%] rounded-full" />
+                      <div className="h-full bg-accent w-[0%] rounded-full" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-2xl font-headline font-bold text-accent">98.2%</p>
+                      <p className="text-2xl font-headline font-bold text-accent">0%</p>
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Efficiency</p>
                     </div>
                     <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-2xl font-headline font-bold text-accent">1.2s</p>
+                      <p className="text-2xl font-headline font-bold text-accent">0s</p>
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Ledger Sync</p>
                     </div>
                   </div>
@@ -486,6 +467,11 @@ function CommunityList() {
                   </TableCell>
                 </TableRow>
               ))}
+              {communities?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No communities registered.</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         )}
@@ -607,6 +593,11 @@ function ReportList() {
                   </TableCell>
                 </TableRow>
               ))}
+              {reports?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No reports published.</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         )}

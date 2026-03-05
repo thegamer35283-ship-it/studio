@@ -19,13 +19,21 @@ const PRESETS = [
 
 export function DonationFlow() {
   const { toast } = useToast()
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(4000)
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState<string>("")
   const [isMonthly, setIsMonthly] = useState(false)
   const [isGift, setIsGift] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleDonate = () => {
+    if (!customAmount && !selectedAmount) {
+      toast({
+        variant: "destructive",
+        title: "Amount Required",
+        description: "Please select or enter a donation amount.",
+      })
+      return
+    }
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
@@ -33,6 +41,8 @@ export function DonationFlow() {
         title: "Contribution Received!",
         description: `Thank you for your generous gift of ₹${customAmount || selectedAmount}. May it be a source of blessing.`,
       })
+      setCustomAmount("")
+      setSelectedAmount(null)
     }, 1500)
   }
 
