@@ -8,12 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles, Loader2, QrCode, ShieldCheck } from "lucide-react"
+import { CreditCard, Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import Image from "next/image"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 
@@ -22,6 +21,8 @@ const PRESETS = [
   { amount: 4000, description: "Covers school supplies and tuition for one child's education." },
   { amount: 10000, description: "Funds a sustainable clean water source for an entire village." }
 ]
+
+const UPI_URI = "upi://pay?pa=9792880607-5@ibl&pn=SAHIL%20ANSARI&mc=0000&mode=02&purpose=00"
 
 export function DonationFlow() {
   const { toast } = useToast()
@@ -38,7 +39,6 @@ export function DonationFlow() {
 
   const qrImage = PlaceHolderImages.find(img => img.id === 'phonepe-qr')
 
-  // Automatically sign in anonymously if no user is present to ensure tracking
   useEffect(() => {
     if (!user && auth) {
       initiateAnonymousSignIn(auth)
@@ -112,7 +112,7 @@ export function DonationFlow() {
           </div>
 
           <div className="grid lg:grid-cols-12 gap-8 items-start">
-            {/* Quick QR Section - Always Open and Prominent */}
+            {/* Quick QR Section */}
             <div className="lg:col-span-4 order-2 lg:order-1 space-y-6">
               <Card className="border-none shadow-2xl rounded-[3rem] bg-black text-white overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
@@ -135,9 +135,19 @@ export function DonationFlow() {
                     />
                   </div>
                   <p className="font-bold text-xl mb-1 tracking-tight">SAHIL ANSARI</p>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10 text-[10px] uppercase font-black tracking-[0.2em] text-accent">
-                    <ShieldCheck className="w-3 h-3" /> Verified Bond
+                  <p className="text-xs text-accent font-mono mb-4">9792880607-5@ibl</p>
+                  
+                  <div className="flex flex-col gap-3 w-full">
+                    <Button asChild className="rounded-full bg-accent hover:bg-accent/90 h-12 gap-2 text-sm font-bold shadow-lg">
+                      <a href={UPI_URI}>
+                        <Smartphone className="w-4 h-4" /> Pay with UPI App <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </Button>
+                    <div className="flex items-center justify-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10 text-[10px] uppercase font-black tracking-[0.2em] text-accent/80">
+                      <ShieldCheck className="w-3 h-3" /> Verified Bond
+                    </div>
                   </div>
+
                   <p className="mt-6 text-[10px] text-white/40 uppercase font-bold tracking-widest italic">
                     Scan with PhonePe, GPay, or any UPI app
                   </p>
@@ -271,7 +281,7 @@ export function DonationFlow() {
                     <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
                     <div className="flex items-center gap-2 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
                       <Smartphone className="w-4 h-4" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">GPay / Apple Pay</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest">UPI / GPay / PhonePe</span>
                     </div>
                   </div>
 
