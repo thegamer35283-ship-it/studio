@@ -24,7 +24,9 @@ import {
   ShieldCheck,
   TrendingUp,
   HandHelping,
-  Briefcase
+  Briefcase,
+  Coins,
+  History
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -42,6 +44,29 @@ export default function AdminDashboard() {
   }, [firestore, user])
   
   const { data: adminRole, isLoading: isAdminLoading } = useDoc(adminRoleRef)
+
+  // Fetch all donations to calculate total revenue
+  const donationsQuery = useMemoFirebase(() => {
+    if (!firestore) return null
+    return query(collection(firestore, "donations"), orderBy("createdAt", "desc"))
+  }, [firestore])
+  const { data: donations } = useCollection(donationsQuery)
+
+  // Fetch campaigns for count
+  const campaignsQuery = useMemoFirebase(() => {
+    if (!firestore) return null
+    return query(collection(firestore, "campaigns"))
+  }, [firestore])
+  const { data: campaigns } = useCollection(campaignsQuery)
+
+  // Fetch communities for count
+  const communitiesQuery = useMemoFirebase(() => {
+    if (!firestore) return null
+    return query(collection(firestore, "beneficiary_communities"))
+  }, [firestore])
+  const { data: communities } = useCollection(communitiesQuery)
+
+  const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
 
   const [activeTab, setActiveTab] = useState("overview")
   const [isInitializing, setIsInitializing] = useState(false)
@@ -152,6 +177,9 @@ export default function AdminDashboard() {
             <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <LayoutDashboard className="w-4 h-4" /> Overview
             </TabsTrigger>
+            <TabsTrigger value="donations" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
+              <Coins className="w-4 h-4" /> Donations
+            </TabsTrigger>
             <TabsTrigger value="campaigns" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
               <Heart className="w-4 h-4" /> Campaigns
             </TabsTrigger>
@@ -166,10 +194,10 @@ export default function AdminDashboard() {
           <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {[
-                { label: "Total Revenue", value: "₹0", icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
-                { label: "Active Nodes", value: "0 Projects", icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
-                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: "0 Members", color: "text-primary", bg: "bg-primary/5" },
-                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: "0 Regions", color: "text-accent", bg: "bg-accent/5" }
+                { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
+                { label: "Active Nodes", value: `${campaigns?.length || 0} Projects`, icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
+                { label: "Staff Reach", icon: <Users className="w-5 h-5" />, value: `${donations?.length || 0} Contribs`, color: "text-primary", bg: "bg-primary/5" },
+                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: `${communities?.length || 0} Regions`, color: "text-accent", bg: "bg-accent/5" }
               ].map((stat, i) => (
                 <Card key={i} className="border-none shadow-xl rounded-[2.5rem] hover-lift transition-all overflow-hidden relative group">
                   <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} -mr-8 -mt-8 rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
@@ -191,37 +219,56 @@ export default function AdminDashboard() {
                   <CardDescription>Real-time updates from across the Islamic Group 313 network.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="py-12 text-center text-muted-foreground italic flex flex-col items-center gap-3">
-                    <HandHelping className="w-12 h-12 opacity-20" />
-                    <p>No recent activity detected in the humanitarian ledger.</p>
-                  </div>
+                  {donations && donations.length > 0 ? (
+                    <div className="space-y-6">
+                      {donations.slice(0, 5).map((donation) => (
+                        <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted/50 hover:border-accent/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                              <History className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-primary">New Contribution: ₹{donation.amount.toLocaleString()}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{new Date(donation.transactionDate).toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <Badge className="bg-accent/10 text-accent border-none font-bold uppercase tracking-tighter text-[10px]">Completed</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center text-muted-foreground italic flex flex-col items-center gap-3">
+                      <HandHelping className="w-12 h-12 opacity-20" />
+                      <p>No recent activity detected in the humanitarian ledger.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               
               <Card className="border-none shadow-xl rounded-[3rem] bg-primary text-primary-foreground overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -mr-32 -mt-32" />
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl font-headline text-white">Quick Statistics</CardTitle>
-                  <CardDescription className="text-white/60">Current performance metrics.</CardDescription>
+                  <CardTitle className="text-2xl font-headline text-white">Target Matrix</CardTitle>
+                  <CardDescription className="text-white/60">Current financial performance.</CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10 space-y-8">
                   <div>
                     <div className="flex justify-between text-xs mb-2 font-bold uppercase tracking-widest text-white/80">
-                      <span>Fundraising Goal</span>
-                      <span>₹0 / ₹10M</span>
+                      <span>Fundraising Progress</span>
+                      <span>₹{totalRevenue.toLocaleString()} / ₹10M</span>
                     </div>
                     <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-accent w-[0%] rounded-full" />
+                      <div className="h-full bg-accent rounded-full transition-all duration-1000" style={{ width: `${Math.min((totalRevenue / 10000000) * 100, 100)}%` }} />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-2xl font-headline font-bold text-accent">0%</p>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
+                      <p className="text-2xl font-headline font-bold text-accent">{Math.min((totalRevenue / 10000000) * 100, 100).toFixed(1)}%</p>
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Efficiency</p>
                     </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-2xl font-headline font-bold text-accent">0s</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Ledger Sync</p>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
+                      <p className="text-2xl font-headline font-bold text-accent">{donations?.length || 0}</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Transactions</p>
                     </div>
                   </div>
                 </CardContent>
@@ -229,10 +276,14 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="donations" className="animate-in fade-in slide-in-from-bottom-4">
+            <DonationList donations={donations} />
+          </TabsContent>
+
           <TabsContent value="campaigns" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                <CampaignList />
+                <CampaignList campaigns={campaigns} />
               </div>
               <div className="lg:col-span-1">
                 <CampaignForm />
@@ -243,7 +294,7 @@ export default function AdminDashboard() {
           <TabsContent value="communities" className="animate-in fade-in slide-in-from-bottom-4">
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                <CommunityList />
+                <CommunityList communities={communities} />
               </div>
               <div className="lg:col-span-1">
                 <CommunityForm />
@@ -267,15 +318,60 @@ export default function AdminDashboard() {
   )
 }
 
-function CampaignList() {
-  const { firestore } = useFirebase()
-  const q = useMemoFirebase(() => {
-    if (!firestore) return null
-    return query(collection(firestore, "campaigns"), orderBy("createdAt", "desc"), limit(20))
-  }, [firestore])
-  
-  const { data: campaigns, isLoading } = useCollection(q)
+function DonationList({ donations }: { donations: any[] | null }) {
+  return (
+    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-3xl font-headline">Donation Ledger</CardTitle>
+            <CardDescription className="text-lg">Complete record of every contribution received.</CardDescription>
+          </div>
+          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{donations?.length || 0} Total Records</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Reference ID</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Amount (INR)</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Donor Identity</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Date & Time</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {donations?.map((d) => (
+              <TableRow key={d.id} className="border-muted/10 group hover:bg-muted/5">
+                <TableCell className="pl-10 py-6 font-mono text-xs text-primary/60">{d.transactionReference}</TableCell>
+                <TableCell className="font-headline font-bold text-primary">₹{d.amount.toLocaleString()}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-primary">{d.donorId === 'anonymous' ? 'Guest Donor' : d.donorId.substring(0, 10)}</span>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">{d.isRecurring ? 'Recurring' : 'One-time'}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-xs font-medium text-muted-foreground">{new Date(d.transactionDate).toLocaleString()}</TableCell>
+                <TableCell className="text-right pr-10">
+                  <Badge className="bg-accent text-white border-none font-bold uppercase tracking-widest text-[9px] px-2 py-0.5">Verified</Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+            {donations?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic">No donation records found in the ledger.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
 
+function CampaignList({ campaigns }: { campaigns: any[] | null }) {
+  const { firestore } = useFirebase()
   return (
     <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
       <CardHeader className="p-10 pb-6 border-b border-muted/50">
@@ -284,63 +380,56 @@ function CampaignList() {
             <CardTitle className="text-3xl font-headline">Active Campaigns</CardTitle>
             <CardDescription className="text-lg">Track progress of global humanitarian initiatives.</CardDescription>
           </div>
-          <Badge className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors border-none py-1.5 px-4 font-bold">{campaigns?.length || 0} Registered</Badge>
+          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{campaigns?.length || 0} Registered</Badge>
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {isLoading ? (
-          <div className="p-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Loading Ledger...</p>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Identity</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Financial Goal</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Current Raised</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Identity</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Financial Goal</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Progress</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {campaigns?.map((c) => (
+              <TableRow key={c.id} className="border-muted/10 group">
+                <TableCell className="pl-10 py-6">
+                  <div>
+                    <p className="font-bold text-primary group-hover:text-accent transition-colors">{c.name}</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{c.category}</p>
+                  </div>
+                </TableCell>
+                <TableCell className="font-mono font-medium">₹{Number(c.goalAmount).toLocaleString()}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1.5 min-w-[120px]">
+                     <p className="text-xs font-black text-accent">₹{Number(c.currentRaisedAmount || 0).toLocaleString()}</p>
+                     <div className="h-1.5 w-full bg-muted rounded-full">
+                       <div className="h-full bg-accent rounded-full" style={{ width: `${Math.min(((c.currentRaisedAmount || 0) / c.goalAmount) * 100, 100)}%` }} />
+                     </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right pr-10">
+                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
+                     if (confirm(`Confirm decommissioning of campaign: ${c.name}?`)) {
+                       const ref = doc(firestore!, "campaigns", c.id)
+                       deleteDocumentNonBlocking(ref)
+                     }
+                  }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {campaigns?.map((c) => (
-                <TableRow key={c.id} className="border-muted/10 group">
-                  <TableCell className="pl-10 py-6">
-                    <div>
-                      <p className="font-bold text-primary group-hover:text-accent transition-colors">{c.name}</p>
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{c.category}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono font-medium">₹{Number(c.goalAmount).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1.5 min-w-[120px]">
-                       <p className="text-xs font-black text-accent">₹{Number(c.currentRaisedAmount).toLocaleString()}</p>
-                       <div className="h-1.5 w-full bg-muted rounded-full">
-                         <div className="h-full bg-accent rounded-full" style={{ width: `${Math.min((c.currentRaisedAmount / c.goalAmount) * 100, 100)}%` }} />
-                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right pr-10">
-                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
-                       if (confirm(`Confirm decommissioning of campaign: ${c.name}?`)) {
-                         const ref = doc(firestore!, "campaigns", c.id)
-                         deleteDocumentNonBlocking(ref)
-                       }
-                    }}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {campaigns?.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No humanitarian campaigns registered in the current ledger.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
+            ))}
+            {campaigns?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No humanitarian campaigns registered in the current ledger.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   )
@@ -418,15 +507,8 @@ function CampaignForm() {
   )
 }
 
-function CommunityList() {
+function CommunityList({ communities }: { communities: any[] | null }) {
   const { firestore } = useFirebase()
-  const q = useMemoFirebase(() => {
-    if (!firestore) return null
-    return query(collection(firestore, "beneficiary_communities"), orderBy("createdAt", "desc"))
-  }, [firestore])
-  
-  const { data: communities, isLoading } = useCollection(q)
-
   return (
     <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
       <CardHeader className="p-10 pb-6 border-b border-muted/50">
@@ -434,47 +516,40 @@ function CommunityList() {
         <CardDescription className="text-lg">View registered beneficiary regions.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        {isLoading ? (
-          <div className="p-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Syncing Data...</p>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Community Identity</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Geographic Region</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Demographic</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
+              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Community Identity</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Geographic Region</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest">Demographic</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {communities?.map((c) => (
+              <TableRow key={c.id} className="border-muted/10">
+                <TableCell className="font-bold pl-10 py-6 text-primary">{c.name}</TableCell>
+                <TableCell className="font-medium text-muted-foreground">{c.geographicRegion}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest text-accent border-accent/20 bg-accent/5">{c.type}</Badge>
+                </TableCell>
+                <TableCell className="text-right pr-10">
+                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
+                     const ref = doc(firestore!, "beneficiary_communities", c.id)
+                     deleteDocumentNonBlocking(ref)
+                  }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {communities?.map((c) => (
-                <TableRow key={c.id} className="border-muted/10">
-                  <TableCell className="font-bold pl-10 py-6 text-primary">{c.name}</TableCell>
-                  <TableCell className="font-medium text-muted-foreground">{c.geographicRegion}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest text-accent border-accent/20 bg-accent/5">{c.type}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right pr-10">
-                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
-                       const ref = doc(firestore!, "beneficiary_communities", c.id)
-                       deleteDocumentNonBlocking(ref)
-                    }}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {communities?.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No communities registered.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
+            ))}
+            {communities?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No communities registered.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   )

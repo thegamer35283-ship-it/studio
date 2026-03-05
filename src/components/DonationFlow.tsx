@@ -8,8 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles } from "lucide-react"
+import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useFirebase, useUser } from "@/firebase"
+import { collection } from "firebase/firestore"
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 
 const PRESETS = [
   { amount: 1000, description: "Provides 1 week of nutritional support for a family in crisis." },
@@ -19,31 +22,67 @@ const PRESETS = [
 
 export function DonationFlow() {
   const { toast } = useToast()
+  const { firestore } = useFirebase()
+  const { user } = useUser()
+  
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState<string>("")
   const [isMonthly, setIsMonthly] = useState(false)
   const [isGift, setIsGift] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [honoreeName, setHonoreeName] = useState("")
+  const [honoreeEmail, setHonoreeEmail] = useState("")
 
   const handleDonate = () => {
-    if (!customAmount && !selectedAmount) {
+    const finalAmount = Number(customAmount || selectedAmount)
+    
+    if (!finalAmount || finalAmount <= 0) {
       toast({
         variant: "destructive",
         title: "Amount Required",
-        description: "Please select or enter a donation amount.",
+        description: "Please select or enter a valid donation amount.",
       })
       return
     }
+
+    if (!firestore) return
+
     setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Contribution Received!",
-        description: `Thank you for your generous gift of ₹${customAmount || selectedAmount}. May it be a source of blessing.`,
+    
+    const donationsRef = collection(firestore, "donations")
+    const donationData = {
+      id: crypto.randomUUID(),
+      donorId: user?.uid || "anonymous",
+      amount: finalAmount,
+      currency: "INR",
+      transactionDate: new Date().toISOString(),
+      paymentMethodType: "Card/Digital",
+      transactionReference: `REF-${Math.random().toString(36).substring(7).toUpperCase()}`,
+      status: "Completed",
+      isRecurring: isMonthly,
+      recurrenceFrequency: isMonthly ? "monthly" : null,
+      honoreeName: isGift ? honoreeName : null,
+      honoreeEmail: isGift ? honoreeEmail : null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    addDocumentNonBlocking(donationsRef, donationData)
+      .then(() => {
+        setIsLoading(false)
+        toast({
+          title: "Contribution Received!",
+          description: `Thank you for your generous gift of ₹${finalAmount.toLocaleString('en-IN')}. May it be a source of blessing.`,
+        })
+        setCustomAmount("")
+        setSelectedAmount(null)
+        setHonoreeName("")
+        setHonoreeEmail("")
+        setIsGift(false)
       })
-      setCustomAmount("")
-      setSelectedAmount(null)
-    }, 1500)
+      .catch(() => {
+        setIsLoading(false)
+      })
   }
 
   return (
@@ -119,8 +158,8 @@ export function DonationFlow() {
 
                   {isGift && (
                     <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                      <Input placeholder="Honoree Full Name" className="rounded-xl h-12" />
-                      <Input placeholder="Recipient Email (Optional)" className="rounded-xl h-12" />
+                      <Input placeholder="Honoree Full Name" value={honoreeName} onChange={e => setHonoreeName(e.target.value)} className="rounded-xl h-12" />
+                      <Input placeholder="Recipient Email (Optional)" value={honoreeEmail} onChange={e => setHonoreeEmail(e.target.value)} className="rounded-xl h-12" />
                     </div>
                   )}
                 </div>
@@ -131,7 +170,7 @@ export function DonationFlow() {
                     disabled={isLoading}
                     className="w-full h-16 rounded-full bg-accent hover:bg-accent/90 text-white font-headline font-bold text-xl shadow-lg transition-all active:scale-95"
                   >
-                    {isLoading ? "Processing..." : `Empower a Life Now: ₹${(customAmount || selectedAmount || '0').toLocaleString()}`}
+                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : `Empower a Life Now: ₹${(Number(customAmount) || selectedAmount || 0).toLocaleString('en-IN')}`}
                   </Button>
                   
                   <div className="grid grid-cols-2 gap-3">
@@ -174,7 +213,7 @@ export function DonationFlow() {
                   </div>
                 </div>
                 <p className="mt-8 text-xs text-muted-foreground leading-relaxed italic">
-                  "Benevolent Bonds follows strict Shariah guidelines for Zakat and Sadaqah distribution. 100% of Zakat reaches eligible recipients."
+                  "Islamic Group 313 follows strict Shariah guidelines for Zakat and Sadaqah distribution. 100% of Zakat reaches eligible recipients."
                 </p>
               </div>
 
