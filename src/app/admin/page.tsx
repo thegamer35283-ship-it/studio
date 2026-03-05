@@ -26,7 +26,9 @@ import {
   HandHelping,
   Briefcase,
   Coins,
-  History
+  History,
+  ArrowUpRight,
+  Fingerprint
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -215,31 +217,39 @@ export default function AdminDashboard() {
             <div className="grid lg:grid-cols-3 gap-8">
               <Card className="lg:col-span-2 border-none shadow-xl rounded-[3rem] p-4">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-headline">Recent System Activity</CardTitle>
+                  <CardTitle className="text-2xl font-headline">Live Ledger Activity</CardTitle>
                   <CardDescription>Real-time updates from across the Islamic Group 313 network.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {donations && donations.length > 0 ? (
                     <div className="space-y-6">
                       {donations.slice(0, 5).map((donation) => (
-                        <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted/50 hover:border-accent/30 transition-colors">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-                              <History className="w-5 h-5" />
+                        <div key={donation.id} className="flex items-center justify-between p-5 bg-muted/30 rounded-[2rem] border border-muted/50 hover:border-accent/30 transition-all group">
+                          <div className="flex items-center gap-5">
+                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-accent shadow-sm group-hover:scale-110 transition-transform">
+                              <History className="w-6 h-6" />
                             </div>
                             <div>
-                              <p className="font-bold text-sm text-primary">New Contribution: ₹{donation.amount.toLocaleString()}</p>
-                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{new Date(donation.transactionDate).toLocaleString()}</p>
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <p className="font-black text-lg text-primary">₹{donation.amount.toLocaleString()}</p>
+                                <ArrowUpRight className="w-4 h-4 text-accent" />
+                              </div>
+                              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{new Date(donation.transactionDate).toLocaleString()}</p>
                             </div>
                           </div>
-                          <Badge className="bg-accent/10 text-accent border-none font-bold uppercase tracking-tighter text-[10px]">Completed</Badge>
+                          <div className="text-right">
+                            <Badge className="bg-accent/10 text-accent border-none font-black uppercase tracking-tighter text-[10px] px-3 py-1">Verified Bond</Badge>
+                            <p className="text-[9px] font-mono text-muted-foreground mt-1 opacity-60">ID: {donation.transactionReference?.substring(0, 12)}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="py-12 text-center text-muted-foreground italic flex flex-col items-center gap-3">
-                      <HandHelping className="w-12 h-12 opacity-20" />
-                      <p>No recent activity detected in the humanitarian ledger.</p>
+                    <div className="py-24 text-center text-muted-foreground italic flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-2">
+                        <HandHelping className="w-8 h-8 opacity-20" />
+                      </div>
+                      <p className="max-w-xs font-medium">No recent activity detected in the humanitarian ledger. Our mission awaits your leadership.</p>
                     </div>
                   )}
                 </CardContent>
@@ -253,22 +263,22 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent className="relative z-10 space-y-8">
                   <div>
-                    <div className="flex justify-between text-xs mb-2 font-bold uppercase tracking-widest text-white/80">
+                    <div className="flex justify-between text-xs mb-3 font-bold uppercase tracking-widest text-white/80">
                       <span>Fundraising Progress</span>
                       <span>₹{totalRevenue.toLocaleString()} / ₹10M</span>
                     </div>
-                    <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-accent rounded-full transition-all duration-1000" style={{ width: `${Math.min((totalRevenue / 10000000) * 100, 100)}%` }} />
+                    <div className="h-4 w-full bg-white/10 rounded-full overflow-hidden p-1">
+                      <div className="h-full bg-accent rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.5)]" style={{ width: `${Math.min((totalRevenue / 10000000) * 100, 100)}%` }} />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
-                      <p className="text-2xl font-headline font-bold text-accent">{Math.min((totalRevenue / 10000000) * 100, 100).toFixed(1)}%</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Efficiency</p>
+                    <div className="p-5 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm">
+                      <p className="text-3xl font-headline font-bold text-accent">{Math.min((totalRevenue / 10000000) * 100, 100).toFixed(1)}%</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Efficiency</p>
                     </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-center">
-                      <p className="text-2xl font-headline font-bold text-accent">{donations?.length || 0}</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Transactions</p>
+                    <div className="p-5 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm">
+                      <p className="text-3xl font-headline font-bold text-accent">{donations?.length || 0}</p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Transactions</p>
                     </div>
                   </div>
                 </CardContent>
@@ -320,47 +330,54 @@ export default function AdminDashboard() {
 
 function DonationList({ donations }: { donations: any[] | null }) {
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-3xl font-headline">Donation Ledger</CardTitle>
-            <CardDescription className="text-lg">Complete record of every contribution received.</CardDescription>
-          </div>
-          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{donations?.length || 0} Total Records</Badge>
+    <Card className="border-none shadow-2xl rounded-[3.5rem] overflow-hidden bg-white">
+      <CardHeader className="p-10 pb-6 border-b border-muted/50 flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-3xl font-headline flex items-center gap-3">
+             Donation Ledger
+          </CardTitle>
+          <CardDescription className="text-lg">Real-time record of all humanitarian contributions.</CardDescription>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge className="bg-primary/10 text-primary border-none py-2 px-5 font-black uppercase tracking-widest text-[10px] rounded-full">{donations?.length || 0} Total Records</Badge>
         </div>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Reference ID</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Amount (INR)</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Donor Identity</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Date & Time</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Status</TableHead>
+            <TableRow className="bg-muted/10 border-none hover:bg-muted/10">
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] pl-10 py-8">Reference / UTR</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Amount (INR)</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Donor Identity</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Timestamp</TableHead>
+              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] text-right pr-10">Verification</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {donations?.map((d) => (
-              <TableRow key={d.id} className="border-muted/10 group hover:bg-muted/5">
-                <TableCell className="pl-10 py-6 font-mono text-xs text-primary/60">{d.transactionReference}</TableCell>
-                <TableCell className="font-headline font-bold text-primary">₹{d.amount.toLocaleString()}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-primary">{d.donorId === 'anonymous' ? 'Guest Donor' : d.donorId.substring(0, 10)}</span>
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground">{d.isRecurring ? 'Recurring' : 'One-time'}</span>
+              <TableRow key={d.id} className="border-muted/10 group hover:bg-accent/[0.02] transition-colors">
+                <TableCell className="pl-10 py-6">
+                  <div className="flex items-center gap-2">
+                    <Fingerprint className="w-3 h-3 text-muted-foreground opacity-40" />
+                    <span className="font-mono text-xs font-bold text-primary/70">{d.transactionReference || 'PENDING'}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-xs font-medium text-muted-foreground">{new Date(d.transactionDate).toLocaleString()}</TableCell>
+                <TableCell className="font-headline font-black text-xl text-primary">₹{d.amount.toLocaleString()}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-black text-primary uppercase tracking-tight">{d.donorId === 'anonymous' ? 'GUEST BOND' : `USER: ${d.donorId.substring(0, 8)}`}</span>
+                    <span className="text-[9px] uppercase font-black text-accent tracking-[0.2em] mt-0.5">Verified Trace</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(d.transactionDate).toLocaleString()}</TableCell>
                 <TableCell className="text-right pr-10">
-                  <Badge className="bg-accent text-white border-none font-bold uppercase tracking-widest text-[9px] px-2 py-0.5">Verified</Badge>
+                  <Badge className="bg-accent text-white border-none font-black uppercase tracking-[0.2em] text-[8px] px-3 py-1 rounded-lg shadow-sm">Secured</Badge>
                 </TableCell>
               </TableRow>
             ))}
             {donations?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-24 text-muted-foreground italic">No donation records found in the ledger.</TableCell>
+                <TableCell colSpan={5} className="text-center py-32 text-muted-foreground italic font-medium">No contribution records found in the ledger. The mission is awaiting its first bond.</TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react"
+import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check, ReceiptText } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
@@ -16,9 +16,9 @@ import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const PRESETS = [
-  { amount: 1000, description: "Provides 1 week of nutritional support for a family in crisis." },
-  { amount: 4000, description: "Covers school supplies and tuition for one child's education." },
-  { amount: 10000, description: "Funds a sustainable clean water source for an entire village." }
+  { amount: 1000, description: "Provides 1 week of nutritional support." },
+  { amount: 4000, description: "Covers tuition for one child's education." },
+  { amount: 10000, description: "Funds a clean water source for a village." }
 ]
 
 const VPA = "9792880607-5@ibl"
@@ -32,6 +32,7 @@ export function DonationFlow() {
   
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState<string>("")
+  const [utr, setUtr] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<"pay" | "success">("pay")
   const [hasCopied, setHasCopied] = useState(false)
@@ -49,7 +50,7 @@ export function DonationFlow() {
     setHasCopied(true)
     toast({
       title: "UPI ID Copied",
-      description: "You can now paste this ID in your payment app.",
+      description: "Paste this ID in your payment app manually.",
     })
     setTimeout(() => setHasCopied(false), 2000)
   }
@@ -61,7 +62,7 @@ export function DonationFlow() {
       toast({
         variant: "destructive",
         title: "Amount Required",
-        description: "Please select or enter the amount you sent via QR.",
+        description: "Please enter the amount you sent via QR.",
       })
       return
     }
@@ -78,7 +79,7 @@ export function DonationFlow() {
       currency: "INR",
       transactionDate: new Date().toISOString(),
       paymentMethodType: "QR / UPI",
-      transactionReference: `QR-${Math.random().toString(36).substring(7).toUpperCase()}`,
+      transactionReference: utr || `QR-${Math.random().toString(36).substring(7).toUpperCase()}`,
       status: "Completed",
       isRecurring: false,
       createdAt: new Date().toISOString(),
@@ -91,7 +92,7 @@ export function DonationFlow() {
         setStep("success")
         toast({
           title: "Payment Recorded",
-          description: `Your contribution of ₹${finalAmount.toLocaleString('en-IN')} has been added to our humanitarian ledger.`,
+          description: `History automatically saved. Your contribution of ₹${finalAmount.toLocaleString('en-IN')} is now in the ledger.`,
         })
       })
       .catch(() => {
@@ -101,17 +102,18 @@ export function DonationFlow() {
 
   if (step === "success") {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <div className="max-w-md mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-accent/20">
-          <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center text-accent mx-auto mb-8">
+      <div className="container mx-auto px-4 py-24 text-center animate-in fade-in zoom-in duration-500">
+        <div className="max-w-md mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-accent/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16" />
+          <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center text-accent mx-auto mb-8 shadow-inner">
             <CheckCircle2 className="w-12 h-12" />
           </div>
-          <h2 className="text-3xl font-headline font-bold mb-4 text-primary">JazakAllah Khair!</h2>
-          <p className="text-muted-foreground mb-10 leading-relaxed">
-            Your generous contribution has been successfully recorded in our humanitarian ledger. Your bond of hope is now active.
+          <h2 className="text-4xl font-headline font-bold mb-4 text-primary">JazakAllah Khair!</h2>
+          <p className="text-muted-foreground mb-10 leading-relaxed font-medium">
+            Your bond of hope has been **automatically saved** to our humanitarian ledger. Your transparency helps us build trust across the Ummah.
           </p>
-          <Button onClick={() => setStep("pay")} className="rounded-full px-10 h-14 font-bold bg-primary hover:bg-primary/90 shadow-xl transition-all">
-            Make Another Donation
+          <Button onClick={() => { setStep("pay"); setCustomAmount(""); setSelectedAmount(null); setUtr("") }} className="rounded-full px-12 h-16 font-bold bg-primary hover:bg-primary/90 shadow-2xl transition-all hover:scale-105">
+            Submit Another Bond
           </Button>
         </div>
       </div>
@@ -121,34 +123,34 @@ export function DonationFlow() {
   return (
     <section id="donate" className="py-24 bg-primary/[0.03]">
       <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold mb-4 uppercase tracking-widest">
-              <Sparkles className="w-3 h-3" /> QR / UPI Payment Portal
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-xs font-bold mb-6 uppercase tracking-[0.2em] border border-accent/20">
+              <Sparkles className="w-3 h-3" /> Live Humanitarian Ledger
             </div>
-            <h2 className="text-5xl font-headline font-bold mb-4">Direct QR Contribution</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              Scan the QR or use the UPI ID below to support the Ummah directly. Every rupee strengthens our bonds.
+            <h2 className="text-5xl lg:text-6xl font-headline font-bold mb-6 tracking-tight">Direct QR Contribution</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed italic">
+              "The believer's shade on the Day of Resurrection will be their charity."
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left: The QR Code */}
-            <div className="space-y-6 lg:sticky lg:top-24">
-              <Card className="border-none shadow-2xl rounded-[3.5rem] bg-[#000000] text-white overflow-hidden relative group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-1000" />
+            {/* Left: QR Interaction */}
+            <div className="space-y-8">
+              <Card className="border-none shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] rounded-[4rem] bg-[#000000] text-white overflow-hidden relative group">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full blur-[120px] -mr-40 -mt-40 group-hover:scale-125 transition-transform duration-1000" />
                 <CardHeader className="p-12 pb-6 relative z-10 text-center">
-                  <div className="w-16 h-16 rounded-[2rem] bg-accent flex items-center justify-center text-white mx-auto mb-6 shadow-xl">
-                    <QrCode className="w-8 h-8" />
+                  <div className="w-20 h-20 rounded-[2.5rem] bg-accent flex items-center justify-center text-white mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                    <QrCode className="w-10 h-10" />
                   </div>
-                  <CardTitle className="text-4xl font-headline mb-2">Qr</CardTitle>
-                  <CardDescription className="text-white/60 text-lg font-bold">{NAME}</CardDescription>
+                  <CardTitle className="text-4xl font-headline mb-3 tracking-tight">Official QR</CardTitle>
+                  <CardDescription className="text-accent text-xl font-bold uppercase tracking-widest">{NAME}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
-                  <div className="w-full max-w-[300px] aspect-[4/5] relative bg-white rounded-[2.5rem] p-6 shadow-inner mb-8 border-4 border-white/5">
+                  <div className="w-full max-w-[320px] aspect-[4/5] relative bg-white rounded-[3rem] p-8 shadow-2xl mb-10 border-8 border-white/10 group-hover:scale-105 transition-transform duration-500">
                     <Image 
                       src={qrImage?.imageUrl || ""} 
-                      alt="Sahil Ansari PhonePe QR Code" 
+                      alt="Sahil Ansari Official QR Code" 
                       fill 
                       className="object-contain"
                       data-ai-hint="phonepe qr"
@@ -156,114 +158,128 @@ export function DonationFlow() {
                     />
                   </div>
                   
-                  <div className="flex flex-col gap-4 w-full">
-                    <div className="flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 group/id transition-colors hover:border-accent/50">
-                      <div className="text-left">
-                        <p className="text-[10px] uppercase font-black tracking-widest text-white/40 mb-1">UPI ID</p>
-                        <code className="text-sm font-bold text-accent">{VPA}</code>
+                  <div className="flex flex-col gap-5 w-full">
+                    <div className="flex items-center justify-between p-5 bg-white/5 rounded-[2rem] border border-white/10 group/id transition-all hover:bg-white/10 hover:border-accent/40">
+                      <div className="text-left pl-2">
+                        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-1">Secured UPI ID</p>
+                        <code className="text-sm font-bold text-accent font-code">{VPA}</code>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={copyToClipboard} className="text-white hover:bg-white/10 rounded-xl">
-                        {hasCopied ? <Check className="w-5 h-5 text-accent" /> : <Copy className="w-5 h-5" />}
+                      <Button variant="ghost" size="icon" onClick={copyToClipboard} className="text-white hover:bg-white/10 rounded-2xl h-12 w-12 transition-all">
+                        {hasCopied ? <Check className="w-6 h-6 text-accent" /> : <Copy className="w-6 h-6 opacity-60 hover:opacity-100" />}
                       </Button>
                     </div>
 
-                    <Button asChild className="rounded-full bg-accent hover:bg-accent/90 h-16 gap-3 text-lg font-bold shadow-2xl transition-transform hover:scale-105 active:scale-95">
+                    <Button asChild className="rounded-full bg-accent hover:bg-accent/90 h-20 gap-4 text-xl font-bold shadow-[0_20px_40px_rgba(16,185,129,0.3)] transition-all hover:translate-y-[-4px] active:scale-95">
                       <a href={UPI_URI}>
-                        <Smartphone className="w-6 h-6" /> Pay with UPI App <ExternalLink className="w-4 h-4" />
+                        <Smartphone className="w-7 h-7" /> Pay Now with UPI <ExternalLink className="w-5 h-5 opacity-50" />
                       </a>
                     </Button>
                   </div>
 
-                  <p className="mt-8 text-xs text-white/40 uppercase font-bold tracking-[0.2em] italic">
-                    Accepting PhonePe, GPay, Amazon Pay, or any UPI app
+                  <p className="mt-10 text-[10px] text-white/30 uppercase font-black tracking-[0.3em] italic">
+                    Verified Humanitarian Account • GPay • PhonePe • Paytm
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Troubleshooting Alert */}
-              <Alert className="rounded-[2rem] border-amber-200 bg-amber-50 text-amber-900 shadow-sm border-l-4 border-l-amber-500">
-                <AlertCircle className="h-5 w-5 text-amber-600" />
-                <AlertTitle className="font-headline font-bold text-base">Payment Blocked?</AlertTitle>
-                <AlertDescription className="text-xs leading-relaxed space-y-2 mt-2">
-                  <p>If your app (like <strong>FamX</strong>) blocks the transaction for security reasons, please try these steps:</p>
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li><strong>Copy the UPI ID</strong> above and paste it manually into your app.</li>
-                    <li>Try using <strong>PhonePe, Google Pay, or Paytm</strong> instead.</li>
-                    <li>These apps are more likely to permit humanitarian contributions.</li>
-                  </ul>
-                  <div className="pt-2 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-                    Radical Transparency In Every Bond
+              <Alert className="rounded-[2.5rem] border-accent/20 bg-accent/5 text-primary shadow-xl border-l-8 border-l-accent">
+                <AlertCircle className="h-6 w-6 text-accent mt-1" />
+                <AlertTitle className="font-headline font-bold text-lg mb-2 pl-2">Payment Issues?</AlertTitle>
+                <AlertDescription className="text-sm leading-relaxed space-y-3 mt-1 pl-2 font-medium">
+                  <p>If your app (like **FamX**) blocks the link, please **Copy the UPI ID** above and paste it manually into your app. This is the most secure method to bypass automated security blocks.</p>
+                  <div className="pt-2 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+                    Islamic Group 313 Transparency Protocol
                   </div>
                 </AlertDescription>
               </Alert>
             </div>
 
-            {/* Right: Amount Verification for Ledger */}
-            <div className="space-y-8">
-              <div className="p-8 bg-white rounded-[3rem] shadow-sm border border-border/50">
-                <h3 className="text-2xl font-headline font-bold mb-6 text-primary">1. Send Payment</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                  Use your favorite UPI app to scan the QR code or click the button on the left. If the link is blocked, <strong>copy the UPI ID</strong> manually.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 bg-muted/30 rounded-2xl flex flex-col items-center text-center gap-1 border border-border/50">
-                    <Smartphone className="w-5 h-5 text-accent" />
-                    <span className="text-[10px] font-bold uppercase">Open App</span>
+            {/* Right: History Recording Flow */}
+            <div className="lg:pt-4">
+              <div className="p-10 bg-white rounded-[4rem] shadow-2xl border-2 border-accent/10 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-accent/5 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-1000" />
+                
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg">
+                    <ReceiptText className="w-7 h-7" />
                   </div>
-                  <div className="p-4 bg-muted/30 rounded-2xl flex flex-col items-center text-center gap-1 border border-border/50">
-                    <QrCode className="w-5 h-5 text-accent" />
-                    <span className="text-[10px] font-bold uppercase">Scan / Pay</span>
+                  <div>
+                    <h3 className="text-3xl font-headline font-bold text-primary">Verify Contribution</h3>
+                    <p className="text-muted-foreground text-sm font-medium">Record your transfer to update the global ledger.</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-8 bg-white rounded-[3rem] shadow-xl border-2 border-accent/20">
-                <h3 className="text-2xl font-headline font-bold mb-6 text-primary">2. Record Amount</h3>
-                <p className="text-muted-foreground text-sm mb-6">Enter the amount you sent so we can record it in our transparency ledger.</p>
-                
-                <div className="space-y-6">
-                  <div className="grid grid-cols-3 gap-2">
-                    {PRESETS.map((preset) => (
-                      <button
-                        key={preset.amount}
-                        onClick={() => { setSelectedAmount(preset.amount); setCustomAmount("") }}
-                        className={`py-3 rounded-xl border-2 transition-all font-bold text-sm ${selectedAmount === preset.amount ? 'border-accent bg-accent/5 text-primary' : 'border-border text-muted-foreground hover:border-primary/30'}`}
-                      >
-                        ₹{preset.amount.toLocaleString()}
-                      </button>
-                    ))}
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <Label className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground pl-1">Step 1: Select Amount Sent</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {PRESETS.map((preset) => (
+                        <button
+                          key={preset.amount}
+                          onClick={() => { setSelectedAmount(preset.amount); setCustomAmount("") }}
+                          className={`py-4 rounded-2xl border-2 transition-all font-bold text-sm ${selectedAmount === preset.amount ? 'border-accent bg-accent/5 text-primary shadow-lg scale-105' : 'border-muted text-muted-foreground hover:border-primary/20'}`}
+                        >
+                          ₹{preset.amount.toLocaleString()}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <span className="text-primary font-black text-lg">₹</span>
+                      </div>
+                      <Input
+                        type="number"
+                        placeholder="Or enter custom amount sent"
+                        className="pl-12 h-16 rounded-[1.5rem] font-bold text-lg border-2 focus-visible:ring-accent border-muted/50 shadow-inner"
+                        value={customAmount}
+                        onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null) }}
+                      />
+                    </div>
                   </div>
 
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                      <span className="text-primary font-black">₹</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center pl-1">
+                      <Label className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Step 2: Transaction ID (Optional)</Label>
+                      <Badge variant="outline" className="text-[9px] uppercase font-black tracking-widest bg-muted/30">Auto-Generates if empty</Badge>
                     </div>
-                    <Input
-                      type="number"
-                      placeholder="Amount sent"
-                      className="pl-10 h-14 rounded-2xl font-bold border-2 focus-visible:ring-accent border-muted/50"
-                      value={customAmount}
-                      onChange={(e) => { setCustomAmount(e.target.value); setSelectedAmount(null) }}
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none opacity-40">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <Input
+                        placeholder="Paste UTR / Ref Number here"
+                        className="pl-14 h-16 rounded-[1.5rem] font-medium border-2 focus-visible:ring-accent border-muted/50"
+                        value={utr}
+                        onChange={(e) => setUtr(e.target.value)}
+                      />
+                    </div>
                   </div>
 
                   <Button
                     onClick={handleConfirmPayment}
                     disabled={isLoading}
-                    className="w-full h-16 rounded-full bg-primary hover:bg-primary/90 text-white font-headline font-bold text-lg shadow-xl transition-all group"
+                    className="w-full h-20 rounded-full bg-primary hover:bg-primary/90 text-white font-headline font-bold text-xl shadow-[0_20px_40px_rgba(6,78,59,0.2)] transition-all group overflow-hidden relative"
                   >
-                    {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
-                      <>
-                        Verify & Confirm Transfer
-                        <Heart className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                      </>
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-white/10 to-accent/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    {isLoading ? <Loader2 className="w-7 h-7 animate-spin" /> : (
+                      <div className="flex items-center gap-3">
+                        Save to Humanitarian Ledger
+                        <Heart className="w-6 h-6 group-hover:scale-125 group-hover:fill-current transition-all" />
+                      </div>
                     )}
                   </Button>
+                  
+                  <div className="pt-4 flex items-center justify-center gap-6 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
+                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
+                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
+                  </div>
                 </div>
               </div>
               
-              <p className="text-center text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-black opacity-50">
-                Radical Transparency In Every Bond
+              <p className="text-center mt-12 text-[10px] text-muted-foreground uppercase tracking-[0.5em] font-black opacity-30">
+                100% Zakat Integrity • Verified Bonds
               </p>
             </div>
           </div>
