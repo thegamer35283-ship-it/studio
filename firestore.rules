@@ -44,8 +44,10 @@ service cloud.firestore {
     }
 
     match /donations/{donationId} {
+      // Allow creation for anyone to support guest donations, 
+      // but only allow read/list for admins or the specific owner.
+      allow create: if true; 
       allow get, list: if isAdmin() || (isSignedIn() && resource.data.donorId == request.auth.uid);
-      allow create: if isSignedIn() && (isAdmin() || request.resource.data.donorId == request.auth.uid);
       allow update, delete: if isAdmin();
     }
 
