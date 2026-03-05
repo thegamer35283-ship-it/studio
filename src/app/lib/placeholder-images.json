@@ -3,33 +3,39 @@
   "placeholderImages": [
     {
       "id": "hero-main",
-      "description": "A soulful portrait of a child in a needy community, eyes full of hope, soft natural lighting, documentary style professional photography",
-      "imageUrl": "https://picsum.photos/seed/poor-child-hope/1024/1024",
-      "imageHint": "poor child"
+      "description": "Islamic Group 313 branding with Kaaba and Mosque illustration, night sky with moon and stars, elegant gold and silver typography",
+      "imageUrl": "https://picsum.photos/seed/islamic-group-313/1024/1024",
+      "imageHint": "kaaba mosque islamic"
     },
     {
       "id": "hero-bg",
-      "description": "A beautiful mosque at night under a starry sky with a crescent moon, cinematic lighting",
-      "imageUrl": "https://picsum.photos/seed/islamic-night-bg/1920/1080",
-      "imageHint": "mosque night"
+      "description": "Smiling girl in a classroom, candid moment, soft morning sunlight, hopeful mood, cinematic lighting",
+      "imageUrl": "https://picsum.photos/seed/hopeful-child/1200/600",
+      "imageHint": "hopeful education"
     },
     {
       "id": "impact-1",
-      "description": "An elderly person receiving medical care in a community clinic, respectful and dignified",
-      "imageUrl": "https://picsum.photos/seed/elderly-care-india/600/400",
-      "imageHint": "elderly needy care"
+      "description": "Community gathered around a new clean water source, empowering moment, natural sunlight",
+      "imageUrl": "https://picsum.photos/seed/water-community/600/400",
+      "imageHint": "community water"
     },
     {
       "id": "impact-2",
-      "description": "Clean water distribution in a drought-affected village, people gathered around a new well",
-      "imageUrl": "https://picsum.photos/seed/water-well-village/600/400",
-      "imageHint": "village water aid"
+      "description": "Family receiving food aid with dignity, bright and hopeful atmosphere, shallow depth of field",
+      "imageUrl": "https://picsum.photos/seed/dignified-aid/600/400",
+      "imageHint": "empowering aid"
     },
     {
       "id": "impact-3",
-      "description": "Distribution of warm blankets and clothing to families in need during winter",
-      "imageUrl": "https://picsum.photos/seed/winter-relief-aid/600/400",
-      "imageHint": "charity distribution people"
+      "description": "Local doctor caring for a child in a clean, bright clinic, professional photography, hopeful expression",
+      "imageUrl": "https://picsum.photos/seed/clinic-hope/600/400",
+      "imageHint": "medical hope"
+    },
+    {
+      "id": "phonepe-qr",
+      "description": "PhonePe QR Code for Sahil Ansari, payment accepted here, scan and pay using PhonePe app",
+      "imageUrl": "https://picsum.photos/seed/phonepe-qr-sahil/400/500",
+      "imageHint": "phonepe qr"
     }
   ]
 }

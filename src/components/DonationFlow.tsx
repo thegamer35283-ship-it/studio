@@ -8,11 +8,14 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles, Loader2 } from "lucide-react"
+import { CreditCard, Heart, Apple, Smartphone, Gift, Sparkles, Loader2, QrCode } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
+import Image from "next/image"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
 
 const PRESETS = [
   { amount: 1000, description: "Provides 1 week of nutritional support for a family in crisis." },
@@ -32,6 +35,8 @@ export function DonationFlow() {
   const [isLoading, setIsLoading] = useState(false)
   const [honoreeName, setHonoreeName] = useState("")
   const [honoreeEmail, setHonoreeEmail] = useState("")
+
+  const qrImage = PlaceHolderImages.find(img => img.id === 'phonepe-qr')
 
   // Automatically sign in anonymously if no user is present to ensure tracking
   useEffect(() => {
@@ -181,9 +186,38 @@ export function DonationFlow() {
                   </Button>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" className="h-14 rounded-full border-2 font-bold flex items-center gap-2">
-                      <Apple className="w-5 h-5" /> Pay
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="h-14 rounded-full border-2 font-bold flex items-center gap-2 border-primary/20 hover:border-primary/40">
+                          <QrCode className="w-5 h-5" /> PhonePe QR
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md rounded-[2rem]">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-headline text-center">Scan & Pay with PhonePe</DialogTitle>
+                          <DialogDescription className="text-center">
+                            Use any UPI app to scan and support our mission.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex flex-col items-center justify-center p-6 bg-black rounded-[2rem] text-white">
+                           <div className="w-full max-w-[300px] aspect-[4/5] relative mb-4">
+                            <Image 
+                              src={qrImage?.imageUrl || ""} 
+                              alt="PhonePe QR Code" 
+                              fill 
+                              className="object-contain"
+                              data-ai-hint="phonepe qr"
+                            />
+                           </div>
+                           <p className="font-bold text-lg">SAHIL ANSARI</p>
+                           <p className="text-xs opacity-60 uppercase tracking-widest mt-1">Accepted Here</p>
+                        </div>
+                        <p className="text-[10px] text-center text-muted-foreground uppercase font-bold tracking-widest">
+                          After payment, your contribution is processed manually.
+                        </p>
+                      </DialogContent>
+                    </Dialog>
+
                     <Button variant="outline" className="h-14 rounded-full border-2 font-bold flex items-center gap-2">
                       <Smartphone className="w-5 h-5" /> Google Pay
                     </Button>
