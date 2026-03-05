@@ -120,20 +120,20 @@ export function DonationFlow() {
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: The QR Code */}
-            <Card className="border-none shadow-2xl rounded-[3.5rem] bg-black text-white overflow-hidden relative group">
+            <Card className="border-none shadow-2xl rounded-[3.5rem] bg-[#000000] text-white overflow-hidden relative group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-1000" />
               <CardHeader className="p-12 pb-6 relative z-10 text-center">
                 <div className="w-16 h-16 rounded-[2rem] bg-accent flex items-center justify-center text-white mx-auto mb-6 shadow-xl">
                   <QrCode className="w-8 h-8" />
                 </div>
                 <CardTitle className="text-4xl font-headline mb-2">Qr</CardTitle>
-                <CardDescription className="text-white/60 text-lg">Verified UPI Recipient: SAHIL ANSARI</CardDescription>
+                <CardDescription className="text-white/60 text-lg font-bold">SAHIL ANSARI</CardDescription>
               </CardHeader>
               <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
-                <div className="w-full max-w-[280px] aspect-[4/5] relative bg-white rounded-[2.5rem] p-6 shadow-inner mb-8 border-4 border-white/5">
+                <div className="w-full max-w-[300px] aspect-[4/5] relative bg-white rounded-[2.5rem] p-6 shadow-inner mb-8 border-4 border-white/5">
                   <Image 
                     src={qrImage?.imageUrl || ""} 
-                    alt="PhonePe QR Code" 
+                    alt="Sahil Ansari PhonePe QR Code" 
                     fill 
                     className="object-contain"
                     data-ai-hint="phonepe qr"
