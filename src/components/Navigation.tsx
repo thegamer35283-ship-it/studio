@@ -3,11 +3,15 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Moon, Star } from "lucide-react"
+import { Moon, User, LogOut, Shield } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase"
+import { signOut } from "firebase/auth"
 
 export function Navigation() {
   const pathname = usePathname()
+  const { user, isUserLoading } = useUser()
+  const auth = useAuth()
 
   const links = [
     { name: "Our Impact", href: "/impact" },
@@ -28,7 +32,7 @@ export function Navigation() {
           </div>
         </Link>
         
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8">
           {links.map((link) => (
             <Link 
               key={link.href}
@@ -38,9 +42,29 @@ export function Navigation() {
               {link.name}
             </Link>
           ))}
-          <Button asChild className="bg-primary text-white hover:bg-primary/90 rounded-full font-headline font-bold px-8 h-12 shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-primary/20">
-            <Link href="/donate">Donate Now</Link>
-          </Button>
+
+          <div className="flex items-center gap-4 border-l pl-8 border-border">
+            {isUserLoading ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                <Link href="/admin" className={`p-2 rounded-full hover:bg-muted transition-colors ${pathname === '/admin' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  <Shield className="w-5 h-5" />
+                </Link>
+                <Button variant="ghost" size="icon" onClick={() => signOut(auth)} className="rounded-full text-destructive">
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => initiateAnonymousSignIn(auth)} className="rounded-full gap-2">
+                <User className="w-4 h-4" /> Sign In
+              </Button>
+            )}
+            
+            <Button asChild className="bg-primary text-white hover:bg-primary/90 rounded-full font-headline font-bold px-8 h-12 shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-primary/20">
+              <Link href="/donate">Donate Now</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </nav>

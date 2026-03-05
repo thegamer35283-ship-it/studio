@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Navigation } from "@/components/Navigation"
 import { Footer } from "@/components/Footer"
+import { FirebaseClientProvider } from "@/firebase/client-provider"
 
 export const metadata: Metadata = {
   title: 'Islamic Group 313 | Donation in Islamic Work',
@@ -23,12 +24,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body selection:bg-accent/20 flex flex-col min-h-screen">
-        <Navigation />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
+        <FirebaseClientProvider>
+          <Navigation />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

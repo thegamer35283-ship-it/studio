@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { useFirebase, useUser, useDoc, useCollection, useMemoFirebase } from "@/firebase"
+import { useFirebase, useUser, useDoc, useCollection, useMemoFirebase, initiateAnonymousSignIn } from "@/firebase"
 import { collection, doc, query, orderBy, limit } from "firebase/firestore"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,8 @@ import {
   FileText, 
   Globe, 
   Trash2,
-  Calendar
+  Calendar,
+  LogIn
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates"
@@ -28,7 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export default function AdminDashboard() {
   const { user, isUserLoading } = useUser()
-  const { firestore } = useFirebase()
+  const { firestore, auth } = useFirebase()
   
   // DBAC: Check if user is admin via the existence of a document in /app_roles/admin/{uid}
   const adminRoleRef = useMemoFirebase(() => {
@@ -48,14 +49,32 @@ export default function AdminDashboard() {
     )
   }
 
+  // Handle "Not Logged In" state
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
+        <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+          <ShieldAlert className="w-10 h-10" />
+        </div>
+        <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Admin Sign In</h1>
+        <p className="text-muted-foreground text-center max-w-md mb-8">
+          Authorized personnel only. Please sign in to access the Command Center.
+        </p>
+        <Button onClick={() => initiateAnonymousSignIn(auth)} className="rounded-full px-10 h-14 font-bold text-lg gap-2">
+          <LogIn className="w-5 h-5" /> Access Dashboard
+        </Button>
+      </div>
+    )
+  }
+
   // Access check
-  if (!user || !adminRole) {
+  if (!adminRole) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
         <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
         <h1 className="text-2xl font-headline font-bold mb-2 text-primary">Access Denied</h1>
         <p className="text-muted-foreground text-center max-w-md">
-          This panel is restricted to authorized administrators. If you believe this is an error, please contact your system coordinator.
+          Your account ({user.uid}) does not have administrative privileges. Please contact your system coordinator to be added to the `/app_roles/admin` collection.
         </p>
         <Button className="mt-6 rounded-full" asChild variant="outline">
           <a href="/">Return Home</a>
@@ -74,7 +93,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border">
             <div className="text-right">
-              <p className="text-sm font-bold">{user.displayName || "Administrator"}</p>
+              <p className="text-sm font-bold">{user.displayName || user.uid.substring(0, 8)}</p>
               <p className="text-[10px] text-accent font-bold uppercase tracking-widest">Verified Admin</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
