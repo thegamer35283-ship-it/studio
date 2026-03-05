@@ -1,6 +1,8 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { Navigation } from "@/components/Navigation"
+import { Footer } from "@/components/Footer"
 
 export const metadata: Metadata = {
   title: 'Benevolent Bonds | Global Islamic Charitable Fund',
@@ -19,8 +21,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body selection:bg-accent/20">
-        {children}
+      <body className="font-body selection:bg-accent/20 flex flex-col min-h-screen">
+        <Navigation />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
         <Toaster />
       </body>
     </html>

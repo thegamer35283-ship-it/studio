@@ -3,8 +3,17 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 export function Navigation() {
+  const pathname = usePathname()
+
+  const links = [
+    { name: "Our Impact", href: "/impact" },
+    { name: "Transparency", href: "/transparency" },
+    { name: "Communities", href: "/communities" },
+  ]
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-xl">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -19,11 +28,17 @@ export function Navigation() {
         </Link>
         
         <div className="hidden md:flex items-center gap-10">
-          <Link href="#impact" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Our Impact</Link>
-          <Link href="#transparency" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Transparency</Link>
-          <Link href="#campaigns" className="text-sm font-semibold text-primary/70 hover:text-primary transition-colors">Campaigns</Link>
+          {links.map((link) => (
+            <Link 
+              key={link.href}
+              href={link.href} 
+              className={`text-sm font-semibold transition-colors hover:text-primary ${pathname === link.href ? 'text-primary' : 'text-primary/70'}`}
+            >
+              {link.name}
+            </Link>
+          ))}
           <Button asChild className="bg-primary text-white hover:bg-primary/90 rounded-full font-headline font-bold px-8 h-12 shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-primary/20">
-            <Link href="#donate">Donate Now</Link>
+            <Link href="/donate">Donate Now</Link>
           </Button>
         </div>
       </div>

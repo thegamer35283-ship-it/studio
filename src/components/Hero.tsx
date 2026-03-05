@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +11,7 @@ export function Hero() {
   const imageUrl = heroImage?.imageUrl || "https://picsum.photos/seed/hero-fallback/1200/600"
 
   return (
-    <section className="relative py-20 lg:py-32 overflow-hidden">
+    <section className="relative py-20 lg:py-32 overflow-hidden bg-white">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="z-10 relative">
@@ -31,10 +30,10 @@ export function Hero() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white px-8 h-14 rounded-full text-lg font-headline font-bold shadow-xl transition-all hover:translate-y-[-2px]">
-                <Link href="#donate">Give Hope Now <ArrowRight className="ml-2 w-5 h-5" /></Link>
+                <Link href="/donate">Give Hope Now <ArrowRight className="ml-2 w-5 h-5" /></Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 h-14 rounded-full text-lg font-headline font-bold border-primary text-primary hover:bg-primary/5">
-                Explore Our Impact
+              <Button size="lg" variant="outline" asChild className="px-8 h-14 rounded-full text-lg font-headline font-bold border-primary text-primary hover:bg-primary/5">
+                <Link href="/impact">Explore Our Impact</Link>
               </Button>
             </div>
 
