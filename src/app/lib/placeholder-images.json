@@ -33,8 +33,8 @@
     },
     {
       "id": "phonepe-qr",
-      "description": "Official PhonePe QR Code for Sahil Ansari (IMG_20260306_141923), professional payment interface with UPI branding, 'ACCEPTED HERE' text in purple, PhonePe logo at top, 'SAHIL ANSARI' name at bottom",
-      "imageUrl": "https://picsum.photos/seed/phonepe-sahil-qr/400/500",
+      "description": "Official PhonePe QR Code (IMG_20260306_141923) for Sahil Ansari, black background with white QR pattern, PhonePe 'pe' logo in the center, professional payment interface",
+      "imageUrl": "https://picsum.photos/seed/phonepe-sahil-qr-black/400/400",
       "imageHint": "phonepe qr"
     }
   ]

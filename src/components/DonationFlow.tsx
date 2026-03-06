@@ -42,6 +42,7 @@ export function DonationFlow() {
   const [hasCopiedPhone, setHasCopiedPhone] = useState(false)
 
   const currentAmount = customAmount || (selectedAmount ? selectedAmount.toString() : "")
+  // Dynamic UPI URI based on user parameters
   const upiUri = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}&tn=${encodeURIComponent("Payment")}&am=${currentAmount}&cu=INR`
 
   useEffect(() => {
@@ -175,16 +176,17 @@ export function DonationFlow() {
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
                   
                   {qrImage && (
-                    <div className="mb-10 relative w-64 h-80 bg-white rounded-3xl p-4 shadow-inner overflow-hidden mx-auto group-hover:scale-105 transition-transform duration-500">
+                    <div className="mb-10 relative w-64 h-64 bg-[#121212] rounded-3xl p-4 shadow-2xl border border-white/10 overflow-hidden mx-auto group-hover:scale-105 transition-transform duration-500">
                        <Image 
                         src={qrImage.imageUrl} 
                         alt={qrImage.description} 
                         fill 
                         className="object-contain p-2"
                         data-ai-hint={qrImage.imageHint}
+                        priority
                       />
-                      <div className="absolute bottom-4 left-0 w-full text-center">
-                        <Badge className="bg-primary text-white text-[8px] px-2 py-0.5 uppercase font-black tracking-widest">Scan with PhonePe / GPay</Badge>
+                      <div className="absolute bottom-2 left-0 w-full text-center">
+                        <Badge className="bg-primary text-white text-[8px] px-2 py-0.5 uppercase font-black tracking-widest border-none shadow-sm">Official PhonePe QR</Badge>
                       </div>
                     </div>
                   )}
