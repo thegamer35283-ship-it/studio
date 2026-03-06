@@ -1,9 +1,8 @@
-
 "use client"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Moon, User, LogOut } from "lucide-react"
+import { Moon, User, LogOut, Heart } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase"
 import { signOut } from "firebase/auth"
@@ -45,6 +44,10 @@ export function Navigation() {
           ))}
 
           <div className="flex items-center gap-4 border-l pl-8 border-border">
+            <Button asChild className="rounded-full bg-accent hover:bg-accent/90 text-white font-bold gap-2 shadow-lg shadow-accent/20">
+              <Link href="/donate"><Heart className="w-4 h-4 fill-current" /> Donate</Link>
+            </Button>
+            
             {isUserLoading ? (
               <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
             ) : user ? (

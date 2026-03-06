@@ -1,6 +1,5 @@
-
 import Link from "next/link"
-import { Moon } from "lucide-react"
+import { Moon, Heart } from "lucide-react"
 
 export function Footer() {
   return (
@@ -26,6 +25,7 @@ export function Footer() {
               <li><Link href="/transparency" className="hover:text-white transition-colors">Transparency Hub</Link></li>
               <li><Link href="/communities" className="hover:text-white transition-colors">Communities</Link></li>
               <li><Link href="/team" className="hover:text-white transition-colors">Our Team</Link></li>
+              <li><Link href="/donate" className="text-accent hover:text-accent/80 font-bold flex items-center gap-1"><Heart className="w-3 h-3 fill-current" /> Donate Now</Link></li>
             </ul>
           </div>
         </div>
