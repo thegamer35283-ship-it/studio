@@ -13,6 +13,8 @@ import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
+import Image from "next/image"
 
 const PRESETS = [
   { amount: 1000, description: "Provides 1 week of nutritional support." },
@@ -29,6 +31,8 @@ export function DonationFlow() {
   const { toast } = useToast()
   const { firestore, auth } = useFirebase()
   const { user } = useUser()
+  
+  const qrImage = PlaceHolderImages.find(img => img.id === 'phonepe-qr')
   
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
   const [customAmount, setCustomAmount] = useState<string>("")
@@ -156,6 +160,23 @@ export function DonationFlow() {
                   <CardDescription className="text-accent text-xl font-bold uppercase tracking-widest">{NAME}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
+                  
+                  {/* QR Image Section */}
+                  {qrImage && (
+                    <div className="mb-10 relative w-64 h-80 bg-white rounded-3xl p-4 shadow-inner overflow-hidden mx-auto group-hover:scale-105 transition-transform duration-500">
+                       <Image 
+                        src={qrImage.imageUrl} 
+                        alt={qrImage.description} 
+                        fill 
+                        className="object-contain p-2"
+                        data-ai-hint={qrImage.imageHint}
+                      />
+                      <div className="absolute bottom-4 left-0 w-full text-center">
+                        <Badge className="bg-primary text-white text-[8px] px-2 py-0.5 uppercase font-black tracking-widest">Scan with PhonePe / GPay</Badge>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-col gap-4 w-full mt-2">
                     {/* Manual Entry 1: UPI ID */}
                     <div className="flex items-center justify-between p-5 bg-white/5 rounded-[2rem] border border-white/10 group/id transition-all hover:bg-white/10 hover:border-accent/40">
