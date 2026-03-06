@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import Image from "next/image"
-import { ArrowRight, Users, Moon, Globe } from "lucide-react"
+import { ArrowRight, Users, Moon, Globe, Heart } from "lucide-react"
 import Link from "next/link"
 
 export function Hero() {
@@ -51,10 +51,10 @@ export function Hero() {
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
               <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white px-10 h-16 rounded-full text-xl font-headline font-bold shadow-2xl transition-all hover:translate-y-[-4px]">
-                <Link href="/impact">See the Impact <ArrowRight className="ml-2 w-6 h-6" /></Link>
+                <Link href="/donate">Donate Now <Heart className="ml-2 w-6 h-6 fill-current" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="px-10 h-16 rounded-full text-xl font-headline font-bold border-white/40 text-white hover:bg-white/10 backdrop-blur-sm">
-                <Link href="/communities">View Regions</Link>
+                <Link href="/impact">See Impact</Link>
               </Button>
             </div>
 
