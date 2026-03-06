@@ -42,7 +42,7 @@ export function DonationFlow() {
   const [hasCopiedPhone, setHasCopiedPhone] = useState(false)
 
   const currentAmount = customAmount || (selectedAmount ? selectedAmount.toString() : "")
-  // Dynamic UPI URI based on user parameters
+  // Dynamic UPI URI based on user parameters - matching Java code exactly
   const upiUri = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}&tn=${encodeURIComponent("Payment")}&am=${currentAmount}&cu=INR`
 
   useEffect(() => {
