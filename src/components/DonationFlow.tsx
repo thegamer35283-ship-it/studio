@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Smartphone, Sparkles, Loader2, QrCode, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check, ReceiptText, Phone } from "lucide-react"
+import { Heart, Smartphone, Sparkles, Loader2, ShieldCheck, ExternalLink, CheckCircle2, AlertCircle, Copy, Check, ReceiptText, Phone } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useFirebase, useUser, initiateAnonymousSignIn } from "@/firebase"
 import { collection } from "firebase/firestore"
@@ -22,10 +22,9 @@ const PRESETS = [
   { amount: 10000, description: "Funds a clean water source for a village." }
 ]
 
-const VPA = "9792880607-5@ibl"
+const VPA = "9792880607@ibl"
 const PHONE_NUMBER = "9792880607"
-const NAME = "SAHIL ANSARI"
-const UPI_URI = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}`
+const NAME = "Sahil Ansari"
 
 export function DonationFlow() {
   const { toast } = useToast()
@@ -41,6 +40,9 @@ export function DonationFlow() {
   const [step, setStep] = useState<"pay" | "success">("pay")
   const [hasCopiedVPA, setHasCopiedVPA] = useState(false)
   const [hasCopiedPhone, setHasCopiedPhone] = useState(false)
+
+  const currentAmount = customAmount || (selectedAmount ? selectedAmount.toString() : "")
+  const upiUri = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}&tn=${encodeURIComponent("Payment")}&am=${currentAmount}&cu=INR`
 
   useEffect(() => {
     if (!user && auth) {
@@ -68,8 +70,19 @@ export function DonationFlow() {
     setTimeout(() => setHasCopiedPhone(false), 2000)
   }
 
+  const handlePayNowClick = (e: React.MouseEvent) => {
+    if (!currentAmount || Number(currentAmount) <= 0) {
+      e.preventDefault()
+      toast({
+        variant: "destructive",
+        title: "Enter Amount",
+        description: "Please specify the amount before proceeding to pay.",
+      })
+    }
+  }
+
   const handleConfirmPayment = () => {
-    const finalAmount = Number(customAmount || selectedAmount)
+    const finalAmount = Number(currentAmount)
     
     if (!finalAmount || finalAmount <= 0) {
       toast({
@@ -161,7 +174,6 @@ export function DonationFlow() {
                 </CardHeader>
                 <CardContent className="p-12 pt-0 relative z-10 text-center flex flex-col items-center">
                   
-                  {/* QR Image Section */}
                   {qrImage && (
                     <div className="mb-10 relative w-64 h-80 bg-white rounded-3xl p-4 shadow-inner overflow-hidden mx-auto group-hover:scale-105 transition-transform duration-500">
                        <Image 
@@ -178,7 +190,6 @@ export function DonationFlow() {
                   )}
 
                   <div className="flex flex-col gap-4 w-full mt-2">
-                    {/* Manual Entry 1: UPI ID */}
                     <div className="flex items-center justify-between p-5 bg-white/5 rounded-[2rem] border border-white/10 group/id transition-all hover:bg-white/10 hover:border-accent/40">
                       <div className="text-left pl-2">
                         <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-1">UPI ID (Manual Paste)</p>
@@ -189,7 +200,6 @@ export function DonationFlow() {
                       </Button>
                     </div>
 
-                    {/* Manual Entry 2: Mobile Number */}
                     <div className="flex items-center justify-between p-5 bg-white/5 rounded-[2rem] border border-white/10 group/id transition-all hover:bg-white/10 hover:border-accent/40">
                       <div className="text-left pl-2">
                         <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40 mb-1">Mobile Number (Search)</p>
@@ -200,9 +210,13 @@ export function DonationFlow() {
                       </Button>
                     </div>
 
-                    <Button asChild className="rounded-full bg-accent hover:bg-accent/90 h-20 gap-4 text-xl font-bold shadow-[0_20px_40px_rgba(16,185,129,0.3)] transition-all hover:translate-y-[-4px] active:scale-95 mt-4">
-                      <a href={UPI_URI}>
-                        <Smartphone className="w-7 h-7" /> Open Payment App <ExternalLink className="w-5 h-5 opacity-50" />
+                    <Button 
+                      asChild 
+                      className="rounded-full bg-accent hover:bg-accent/90 h-20 gap-4 text-xl font-bold shadow-[0_20px_40px_rgba(16,185,129,0.3)] transition-all hover:translate-y-[-4px] active:scale-95 mt-4"
+                      onClick={handlePayNowClick}
+                    >
+                      <a href={upiUri}>
+                        <Smartphone className="w-7 h-7" /> Pay Now <ExternalLink className="w-5 h-5 opacity-50" />
                       </a>
                     </Button>
                   </div>
@@ -308,9 +322,9 @@ export function DonationFlow() {
                   </Button>
                   
                   <div className="pt-4 flex items-center justify-center gap-6 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
-                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
-                    <div className="w-12 h-6 bg-gray-400 rounded-sm" />
+                    <div className="h-4 w-12 bg-gray-400 rounded-sm" />
+                    <div className="h-4 w-12 bg-gray-400 rounded-sm" />
+                    <div className="h-4 w-12 bg-gray-400 rounded-sm" />
                   </div>
                 </div>
               </div>
