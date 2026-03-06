@@ -1,3 +1,4 @@
+
 import Link from "next/link"
 import { Moon } from "lucide-react"
 
@@ -5,7 +6,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground py-16">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid md:grid-cols-3 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-lg">
@@ -25,16 +26,6 @@ export function Footer() {
               <li><Link href="/transparency" className="hover:text-white transition-colors">Transparency Hub</Link></li>
               <li><Link href="/communities" className="hover:text-white transition-colors">Communities</Link></li>
               <li><Link href="/team" className="hover:text-white transition-colors">Our Team</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-headline font-bold text-lg mb-6">Ways to Give</h4>
-            <ul className="space-y-4 text-sm text-primary-foreground/70">
-              <li><Link href="/donate" className="hover:text-white transition-colors">Zakat Portal</Link></li>
-              <li><Link href="/donate" className="hover:text-white transition-colors">Sadaqah Jariyah</Link></li>
-              <li><Link href="/donate" className="hover:text-white transition-colors">Monthly Giving</Link></li>
-              <li><Link href="/donate" className="hover:text-white transition-colors">Gift in Honor</Link></li>
             </ul>
           </div>
         </div>

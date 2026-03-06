@@ -17,12 +17,11 @@ export default function ImpactPage() {
             Witness the transformation powered by your compassion. Our journey begins with your support.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
             {[
-              { label: "Lives Impacted", value: "0", icon: <Users className="w-5 h-5" /> },
-              { label: "Villages Served", value: "0", icon: <Globe className="w-5 h-5" /> },
-              { label: "Education Funds", value: "₹0", icon: <Heart className="w-5 h-5" /> },
-              { label: "Global Reach", value: "0 Countries", icon: <Globe className="w-5 h-5" /> }
+              { label: "Lives Impacted", value: "50,000+", icon: <Users className="w-5 h-5" /> },
+              { label: "Villages Served", value: "12+", icon: <Globe className="w-5 h-5" /> },
+              { label: "Global Hubs", value: "12", icon: <Globe className="w-5 h-5" /> }
             ].map((stat, i) => (
               <div key={i} className="p-6 bg-white rounded-3xl shadow-sm border border-accent/10">
                 <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center mx-auto mb-4">

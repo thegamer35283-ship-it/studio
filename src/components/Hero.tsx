@@ -41,43 +41,20 @@ export function Hero() {
                 </span>
                 Global Islamic Support
               </div>
-              
-              {/* India and Iran Flags */}
-              <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm shadow-inner">
-                <div className="flex items-center gap-2">
-                   <svg width="24" height="16" viewBox="0 0 900 600" className="rounded-sm shadow-sm">
-                    <rect width="900" height="200" fill="#FF9933"/>
-                    <rect width="900" height="200" y="200" fill="#fff"/>
-                    <rect width="900" height="200" y="400" fill="#128807"/>
-                    <circle cx="450" cy="300" r="40" fill="#000080"/>
-                  </svg>
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">India</span>
-                </div>
-                <div className="w-px h-4 bg-white/20"></div>
-                <div className="flex items-center gap-2">
-                  <svg width="24" height="16" viewBox="0 0 112 80" className="rounded-sm shadow-sm">
-                    <rect width="112" height="26.66" fill="#239E46"/>
-                    <rect width="112" height="26.66" y="26.66" fill="#fff"/>
-                    <rect width="112" height="26.66" y="53.33" fill="#DA0000"/>
-                    <path d="M56 40 a4 4 0 0 1 0 8 a4 4 0 0 1 0 -8" fill="#DA0000"/>
-                  </svg>
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Iran</span>
-                </div>
-              </div>
             </div>
 
             <h1 className="text-5xl lg:text-7xl font-headline font-bold leading-[1.1] mb-8">
               Lifting <span className="text-accent italic">Bonds of Hope</span> for the Needy.
             </h1>
             <p className="text-xl text-primary-foreground/80 mb-12 max-w-lg leading-relaxed">
-              Islamic Group 313 works tirelessly across India, Iran, and beyond to ensure Zakat and Sadaqah reach those who need it most, with dignity and transparency.
+              Islamic Group 313 works tirelessly across India, Iran, and beyond to support those who need it most, with dignity and transparency.
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
               <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white px-10 h-16 rounded-full text-xl font-headline font-bold shadow-2xl transition-all hover:translate-y-[-4px]">
-                <Link href="/donate">Donate Now <ArrowRight className="ml-2 w-6 h-6" /></Link>
+                <Link href="/impact">See the Impact <ArrowRight className="ml-2 w-6 h-6" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="px-10 h-16 rounded-full text-xl font-headline font-bold border-white/40 text-white hover:bg-white/10 backdrop-blur-sm">
-                <Link href="/impact">See the Impact</Link>
+                <Link href="/communities">View Regions</Link>
               </Button>
             </div>
 
@@ -97,7 +74,7 @@ export function Hero() {
               <div className="flex flex-col">
                 <span className="text-4xl font-headline font-bold text-accent">100%</span>
                 <span className="text-sm text-primary-foreground/60 flex items-center gap-2 mt-1">
-                  <Moon className="w-4 h-4" /> Zakat Integrity
+                  <Moon className="w-4 h-4" /> Commitment
                 </span>
               </div>
             </div>

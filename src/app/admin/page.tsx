@@ -13,7 +13,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { 
   LayoutDashboard, 
   Users, 
-  Heart, 
   ShieldAlert, 
   Plus, 
   Loader2, 
@@ -22,12 +21,7 @@ import {
   Trash2,
   LogIn,
   ShieldCheck,
-  TrendingUp,
-  HandHelping,
   Briefcase,
-  Coins,
-  History,
-  ArrowUpRight,
   Fingerprint,
   Contact,
   Shield,
@@ -52,42 +46,33 @@ export default function AdminDashboard() {
   
   const { data: adminRole, isLoading: isAdminLoading } = useDoc(adminRoleRef)
 
-  // Fetch all donations to calculate total revenue - Guarded by adminRole
-  const donationsQuery = useMemoFirebase(() => {
-    if (!firestore || !adminRole) return null
-    return query(collection(firestore, "donations"), orderBy("createdAt", "desc"))
-  }, [firestore, adminRole])
-  const { data: donations } = useCollection(donationsQuery)
-
-  // Fetch campaigns for count - Guarded by adminRole
+  // Fetch campaigns for count
   const campaignsQuery = useMemoFirebase(() => {
     if (!firestore || !adminRole) return null
     return query(collection(firestore, "campaigns"))
   }, [firestore, adminRole])
   const { data: campaigns } = useCollection(campaignsQuery)
 
-  // Fetch communities for count - Guarded by adminRole
+  // Fetch communities for count
   const communitiesQuery = useMemoFirebase(() => {
     if (!firestore || !adminRole) return null
     return query(collection(firestore, "beneficiary_communities"))
   }, [firestore, adminRole])
   const { data: communities } = useCollection(communitiesQuery)
 
-  // Fetch staff for count - Guarded by adminRole
+  // Fetch staff for count
   const staffQuery = useMemoFirebase(() => {
     if (!firestore || !adminRole) return null
     return query(collection(firestore, "staff"))
   }, [firestore, adminRole])
   const { data: staff } = useCollection(staffQuery)
 
-  // Fetch all admins - Guarded by adminRole
+  // Fetch all admins
   const adminsQuery = useMemoFirebase(() => {
     if (!firestore || !adminRole) return null
     return query(collection(firestore, "admins"))
   }, [firestore, adminRole])
   const { data: admins } = useCollection(adminsQuery)
-
-  const totalRevenue = donations?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0
 
   const [activeTab, setActiveTab] = useState("overview")
   const [email, setEmail] = useState("")
@@ -107,7 +92,7 @@ export default function AdminDashboard() {
       toast({
         variant: "destructive",
         title: "Authentication Failed",
-        description: "Invalid credentials. Unauthorized access is recorded.",
+        description: "Invalid credentials.",
       })
     } finally {
       setIsLoggingIn(false)
@@ -117,294 +102,111 @@ export default function AdminDashboard() {
   if (isUserLoading || isAdminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground animate-pulse">Authenticating Session...</p>
-        </div>
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     )
   }
 
-  // LOGIN SCREEN
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-primary/5 -z-10 opacity-50" />
-        <div className="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-primary/10 text-center animate-in fade-in zoom-in duration-500">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
+        <div className="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-primary/10 text-center">
           <div className="w-20 h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white mx-auto mb-8 shadow-xl">
             <KeyRound className="w-10 h-10" />
           </div>
           <h1 className="text-3xl font-headline font-bold mb-2 text-primary">Admin Login</h1>
-          <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-            Authorized personnel only. Access to the humanitarian ledger requires verified credentials.
-          </p>
-          
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email ID</Label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  required 
-                  className="rounded-2xl h-14 pl-12 border-muted/50 focus-visible:ring-primary" 
-                  placeholder="admin@group313.org"
-                />
-              </div>
+              <Label>Email</Label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Security Key</Label>
-              <div className="relative">
-                <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required 
-                  className="rounded-2xl h-14 pl-12 border-muted/50 focus-visible:ring-primary"
-                  placeholder="••••••••"
-                />
-              </div>
+              <Label>Password</Label>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
-            <Button type="submit" disabled={isLoggingIn} className="w-full rounded-full h-16 font-bold text-lg gap-3 shadow-xl hover:scale-[1.02] transition-transform bg-primary">
+            <Button type="submit" disabled={isLoggingIn} className="w-full h-14 rounded-full font-bold">
               {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
               Access Command Center
             </Button>
           </form>
-
-          <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
-            Secure Node: {user ? 'Authenticated' : 'Offline'}
-          </p>
         </div>
       </div>
     )
   }
 
-  // UNAUTHORIZED SCREEN (If logged in but not an admin)
   if (!adminRole) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
-        <div className="max-w-md w-full p-10 bg-white rounded-[3rem] shadow-2xl border flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-3xl bg-destructive/10 flex items-center justify-center text-destructive mb-8">
-            <ShieldAlert className="w-10 h-10" />
-          </div>
-          <h1 className="text-3xl font-headline font-bold mb-4 text-primary">Access Denied</h1>
-          <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
-            Account (<span className="font-mono text-[10px]">{user.email}</span>) is not recognized as a registered administrator in the humanitarian ledger.
-          </p>
-          <div className="flex flex-col gap-4 w-full">
-            <Button variant="outline" className="rounded-full h-14 border-2" asChild>
-              <a href="/">Return to Public Area</a>
-            </Button>
-          </div>
-          <p className="mt-10 text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
-            Contact Head Admin for Node Authorization
-          </p>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background text-center">
+        <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
+        <h1 className="text-2xl font-bold">Access Denied</h1>
+        <Button variant="outline" className="mt-4 rounded-full" asChild><a href="/">Return Home</a></Button>
       </div>
     )
   }
 
-  // DASHBOARD CONTENT
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="container mx-auto py-12 px-4 max-w-7xl">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="rounded-full px-3 py-1 bg-accent/10 text-accent font-bold uppercase tracking-tighter text-[10px]">Command Center v2.0</Badge>
-              <div className="h-1 w-1 rounded-full bg-accent" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Ledger Access</span>
-            </div>
-            <h1 className="text-5xl font-headline font-bold text-primary tracking-tight">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-2 italic font-medium">&quot;Excellence is to do a job so well that it becomes a source of continuous blessing.&quot;</p>
-          </div>
-          
-          <div className="flex items-center gap-4 bg-white p-4 rounded-[2rem] shadow-xl border border-border/50 group hover:border-primary/30 transition-colors">
-            <div className="text-right">
-              <p className="text-sm font-bold text-primary">{user.email}</p>
-              <div className="flex items-center justify-end gap-1.5 mt-0.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                <p className="text-[10px] text-accent font-black uppercase tracking-[0.2em]">Verified Secure</p>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-          </div>
+        <div className="flex justify-between items-end mb-12">
+          <h1 className="text-4xl font-headline font-bold text-primary">Admin Dashboard</h1>
+          <Badge variant="outline" className="rounded-full px-4 h-8 flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> {user.email}</Badge>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-10">
-          <TabsList className="bg-white/50 backdrop-blur-md p-1.5 rounded-[2rem] h-16 border shadow-inner flex w-full md:w-fit overflow-x-auto whitespace-nowrap scrollbar-hide">
-            <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <LayoutDashboard className="w-4 h-4" /> Overview
-            </TabsTrigger>
-            <TabsTrigger value="donations" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <Coins className="w-4 h-4" /> Donations
-            </TabsTrigger>
-            <TabsTrigger value="campaigns" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <Heart className="w-4 h-4" /> Campaigns
-            </TabsTrigger>
-            <TabsTrigger value="staff" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <Contact className="w-4 h-4" /> Staff
-            </TabsTrigger>
-            <TabsTrigger value="admins" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <Shield className="w-4 h-4" /> Admins
-            </TabsTrigger>
-            <TabsTrigger value="communities" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <Globe className="w-4 h-4" /> Communities
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-8 h-full font-bold transition-all gap-2">
-              <FileText className="w-4 h-4" /> Reports
-            </TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="bg-white p-1 rounded-full h-14 shadow-sm border">
+            <TabsTrigger value="overview" className="rounded-full px-6">Overview</TabsTrigger>
+            <TabsTrigger value="campaigns" className="rounded-full px-6">Campaigns</TabsTrigger>
+            <TabsTrigger value="staff" className="rounded-full px-6">Staff</TabsTrigger>
+            <TabsTrigger value="communities" className="rounded-full px-6">Communities</TabsTrigger>
+            <TabsTrigger value="admins" className="rounded-full px-6">Admins</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-              {[
-                { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "text-primary", bg: "bg-primary/5" },
-                { label: "Active Nodes", value: `${campaigns?.length || 0} Projects`, icon: <Briefcase className="w-5 h-5" />, color: "text-accent", bg: "bg-accent/5" },
-                { label: "Team Size", icon: <Users className="w-5 h-5" />, value: `${staff?.length || 0} Members`, color: "text-primary", bg: "bg-primary/5" },
-                { label: "Impact Areas", icon: <Globe className="w-5 h-5" />, value: `${communities?.length || 0} Regions`, color: "text-accent", bg: "bg-accent/5" }
-              ].map((stat, i) => (
-                <Card key={i} className="border-none shadow-xl rounded-[2.5rem] hover-lift transition-all overflow-hidden relative group">
-                  <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} -mr-8 -mt-8 rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
-                  <CardHeader className="relative z-10 pb-2">
-                    <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
-                      {stat.icon}
-                    </div>
-                    <CardDescription className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60">{stat.label}</CardDescription>
-                    <CardTitle className={`text-4xl font-headline font-bold ${stat.color}`}>{stat.value}</CardTitle>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="grid lg:grid-cols-3 gap-8">
-              <Card className="lg:col-span-2 border-none shadow-xl rounded-[3rem] p-4">
+          <TabsContent value="overview">
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="rounded-[2rem] border-none shadow-xl">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-headline">Live Ledger Activity</CardTitle>
-                  <CardDescription>Real-time updates from across the Islamic Group 313 network.</CardDescription>
+                  <CardTitle className="text-3xl font-bold text-primary">{campaigns?.length || 0}</CardTitle>
+                  <CardDescription>Active Initiatives</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {donations && donations.length > 0 ? (
-                    <div className="space-y-6">
-                      {donations.slice(0, 5).map((donation) => (
-                        <div key={donation.id} className="flex items-center justify-between p-5 bg-muted/30 rounded-[2rem] border border-muted/50 hover:border-accent/30 transition-all group">
-                          <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-accent shadow-sm group-hover:scale-110 transition-transform">
-                              <History className="w-6 h-6" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <p className="font-black text-lg text-primary">₹{donation.amount.toLocaleString()}</p>
-                                <ArrowUpRight className="w-4 h-4 text-accent" />
-                              </div>
-                              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{new Date(donation.transactionDate).toLocaleString()}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <Badge className="bg-accent/10 text-accent border-none font-black uppercase tracking-tighter text-[10px] px-3 py-1">Verified Bond</Badge>
-                            <p className="text-[9px] font-mono text-muted-foreground mt-1 opacity-60">ID: {donation.transactionReference?.substring(0, 12)}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-24 text-center text-muted-foreground italic flex flex-col items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-2">
-                        <HandHelping className="w-8 h-8 opacity-20" />
-                      </div>
-                      <p className="max-w-xs font-medium">No recent activity detected in the humanitarian ledger. Our mission awaits your leadership.</p>
-                    </div>
-                  )}
-                </CardContent>
               </Card>
-              
-              <Card className="border-none shadow-xl rounded-[3rem] bg-primary text-primary-foreground overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -mr-32 -mt-32" />
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl font-headline text-white">Target Matrix</CardTitle>
-                  <CardDescription className="text-white/60">Current financial performance.</CardDescription>
+              <Card className="rounded-[2rem] border-none shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-3xl font-bold text-primary">{staff?.length || 0}</CardTitle>
+                  <CardDescription>Team Members</CardDescription>
                 </CardHeader>
-                <CardContent className="relative z-10 space-y-8">
-                  <div>
-                    <div className="flex justify-between text-xs mb-3 font-bold uppercase tracking-widest text-white/80">
-                      <span>Fundraising Progress</span>
-                      <span>₹{totalRevenue.toLocaleString()} / ₹10M</span>
-                    </div>
-                    <div className="h-4 w-full bg-white/10 rounded-full overflow-hidden p-1">
-                      <div className="h-full bg-accent rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.5)]" style={{ width: `${Math.min((totalRevenue / 10000000) * 100, 100)}%` }} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-5 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm">
-                      <p className="text-3xl font-headline font-bold text-accent">{Math.min((totalRevenue / 10000000) * 100, 100).toFixed(1)}%</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Efficiency</p>
-                    </div>
-                    <div className="p-5 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm">
-                      <p className="text-3xl font-headline font-bold text-accent">{donations?.length || 0}</p>
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Transactions</p>
-                    </div>
-                  </div>
-                </CardContent>
+              </Card>
+              <Card className="rounded-[2rem] border-none shadow-xl">
+                <CardHeader>
+                  <CardTitle className="text-3xl font-bold text-primary">{communities?.length || 0}</CardTitle>
+                  <CardDescription>Regions Served</CardDescription>
+                </CardHeader>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="donations" className="animate-in fade-in slide-in-from-bottom-4">
-            <DonationList donations={donations} />
+          <TabsContent value="campaigns">
+             <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2"><CampaignList campaigns={campaigns} /></div>
+                <div className="lg:col-span-1"><CampaignForm /></div>
+             </div>
           </TabsContent>
 
-          <TabsContent value="campaigns" className="animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <CampaignList campaigns={campaigns} />
-              </div>
-              <div className="lg:col-span-1">
-                <CampaignForm />
-              </div>
-            </div>
+          <TabsContent value="staff">
+             <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2"><StaffList staff={staff} /></div>
+                <div className="lg:col-span-1"><StaffForm /></div>
+             </div>
           </TabsContent>
 
-          <TabsContent value="staff" className="animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <StaffList staff={staff} />
-              </div>
-              <div className="lg:col-span-1">
-                <StaffForm />
-              </div>
-            </div>
+          <TabsContent value="communities">
+             <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2"><CommunityList communities={communities} /></div>
+                <div className="lg:col-span-1"><CommunityForm /></div>
+             </div>
           </TabsContent>
 
-          <TabsContent value="admins" className="animate-in fade-in slide-in-from-bottom-4">
+          <TabsContent value="admins">
             <AdminList admins={admins} />
-          </TabsContent>
-
-          <TabsContent value="communities" className="animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <CommunityList communities={communities} />
-              </div>
-              <div className="lg:col-span-1">
-                <CommunityForm />
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="reports" className="animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <ReportList />
-              </div>
-              <div className="lg:col-span-1">
-                <ReportForm />
-              </div>
-            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -415,118 +217,22 @@ export default function AdminDashboard() {
 function AdminList({ admins }: { admins: any[] | null }) {
   const { firestore } = useFirebase()
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50 flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-3xl font-headline flex items-center gap-3">
-             <Shield className="w-8 h-8 text-primary" /> Registered Administrators
-          </CardTitle>
-          <CardDescription className="text-lg">Authorized personnel with ledger access.</CardDescription>
-        </div>
-        <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{admins?.length || 0} Admins</Badge>
+    <Card className="border-none shadow-xl rounded-[3rem] overflow-hidden">
+      <CardHeader>
+        <CardTitle>Administrators</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/10 border-none hover:bg-muted/10">
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] pl-10 py-8">Administrator UID</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Role Verification</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] text-right pr-10">Command</TableHead>
-            </TableRow>
-          </TableHeader>
+          <TableHeader><TableRow><TableHead className="pl-8">UID</TableHead><TableHead className="text-right pr-8">Actions</TableHead></TableRow></TableHeader>
           <TableBody>
             {admins?.map((admin) => (
-              <TableRow key={admin.id} className="border-muted/10 group">
-                <TableCell className="pl-10 py-6">
-                  <div className="flex items-center gap-2">
-                    <Fingerprint className="w-4 h-4 text-primary opacity-40" />
-                    <span className="font-mono text-sm font-bold text-primary">{admin.uid}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge className="bg-accent/10 text-accent border-none font-black uppercase tracking-widest text-[10px] px-3 py-1 rounded-full">Full Access Command</Badge>
-                </TableCell>
-                <TableCell className="text-right pr-10">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-destructive rounded-xl hover:bg-destructive/10" 
-                    onClick={() => {
-                      if (confirm(`De-authorize administrator: ${admin.uid}?`)) {
-                        const ref = doc(firestore!, "admins", admin.uid)
-                        deleteDocumentNonBlocking(ref)
-                      }
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+              <TableRow key={admin.id}>
+                <TableCell className="pl-8 font-mono text-xs">{admin.uid}</TableCell>
+                <TableCell className="text-right pr-8">
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteDocumentNonBlocking(doc(firestore!, "admins", admin.uid))}><Trash2 className="w-4 h-4" /></Button>
                 </TableCell>
               </TableRow>
             ))}
-            {admins?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-20 text-muted-foreground italic font-medium">No other administrators registered in the ledger.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  )
-}
-
-function DonationList({ donations }: { donations: any[] | null }) {
-  return (
-    <Card className="border-none shadow-2xl rounded-[3.5rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50 flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-3xl font-headline flex items-center gap-3">
-             Donation Ledger
-          </CardTitle>
-          <CardDescription className="text-lg">Real-time record of all humanitarian contributions.</CardDescription>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge className="bg-primary/10 text-primary border-none py-2 px-5 font-black uppercase tracking-widest text-[10px] rounded-full">{donations?.length || 0} Total Records</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/10 border-none hover:bg-muted/10">
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] pl-10 py-8">Reference / UTR</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Amount (INR)</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Donor Identity</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em]">Timestamp</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-[0.2em] text-right pr-10">Verification</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {donations?.map((d) => (
-              <TableRow key={d.id} className="border-muted/10 group hover:bg-accent/[0.02] transition-colors">
-                <TableCell className="pl-10 py-6">
-                  <div className="flex items-center gap-2">
-                    <Fingerprint className="w-3 h-3 text-muted-foreground opacity-40" />
-                    <span className="font-mono text-xs font-bold text-primary/70">{d.transactionReference || 'PENDING'}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="font-headline font-black text-xl text-primary">₹{d.amount.toLocaleString()}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-black text-primary uppercase tracking-tight">{d.donorId === 'anonymous' ? 'GUEST BOND' : `USER: ${d.donorId.substring(0, 8)}`}</span>
-                    <span className="text-[9px] uppercase font-black text-accent tracking-[0.2em] mt-0.5">Verified Trace</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(d.transactionDate).toLocaleString()}</TableCell>
-                <TableCell className="text-right pr-10">
-                  <Badge className="bg-accent text-white border-none font-black uppercase tracking-[0.2em] text-[8px] px-3 py-1 rounded-lg shadow-sm">Secured</Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-            {donations?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-32 text-muted-foreground italic font-medium">No contribution records found in the ledger. The mission is awaiting its first bond.</TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -537,61 +243,21 @@ function DonationList({ donations }: { donations: any[] | null }) {
 function StaffList({ staff }: { staff: any[] | null }) {
   const { firestore } = useFirebase()
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-3xl font-headline">Organizational Staff</CardTitle>
-            <CardDescription className="text-lg">Manage the team powering our mission.</CardDescription>
-          </div>
-          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{staff?.length || 0} Members</Badge>
-        </div>
-      </CardHeader>
+    <Card className="border-none shadow-xl rounded-[3rem] overflow-hidden">
+      <CardHeader><CardTitle>Staff Directory</CardTitle></CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Name & Role</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Contact</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Status</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
-            </TableRow>
-          </TableHeader>
+          <TableHeader><TableRow><TableHead className="pl-8">Name</TableHead><TableHead>Role</TableHead><TableHead className="text-right pr-8">Actions</TableHead></TableRow></TableHeader>
           <TableBody>
             {staff?.map((s) => (
-              <TableRow key={s.id} className="border-muted/10 group">
-                <TableCell className="pl-10 py-6">
-                  <div>
-                    <p className="font-bold text-primary">{s.name}</p>
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{s.role}</p>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs font-medium">
-                  <p>{s.email}</p>
-                  <p className="text-muted-foreground">{s.phoneNumber}</p>
-                </TableCell>
-                <TableCell>
-                  <Badge className={s.status === 'Active' ? 'bg-accent/10 text-accent border-none' : 'bg-muted text-muted-foreground border-none'}>
-                    {s.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right pr-10">
-                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
-                     if (confirm(`Remove ${s.name} from the staff records?`)) {
-                       const ref = doc(firestore!, "staff", s.id)
-                       deleteDocumentNonBlocking(ref)
-                     }
-                  }}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+              <TableRow key={s.id}>
+                <TableCell className="pl-8 font-bold">{s.name}</TableCell>
+                <TableCell>{s.role}</TableCell>
+                <TableCell className="text-right pr-8">
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteDocumentNonBlocking(doc(firestore!, "staff", s.id))}><Trash2 className="w-4 h-4" /></Button>
                 </TableCell>
               </TableRow>
             ))}
-            {staff?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No staff members registered in the current directory.</TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -602,63 +268,25 @@ function StaffList({ staff }: { staff: any[] | null }) {
 function StaffForm() {
   const { firestore } = useFirebase()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    role: "Field Coordinator",
-    email: "",
-    phoneNumber: "",
-    status: "Active"
-  })
+  const [formData, setFormData] = useState({ name: "", role: "", email: "", status: "Active" })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!firestore) return
-    setLoading(true)
-    
-    const colRef = collection(firestore, "staff")
     const id = crypto.randomUUID()
-    
-    addDocumentNonBlocking(colRef, {
-      ...formData,
-      id,
-      joinedDate: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).then(() => {
-      setLoading(false)
-      toast({ title: "Staff Member Added", description: "Identity verified and recorded." })
-      setFormData({ name: "", role: "Field Coordinator", email: "", phoneNumber: "", status: "Active" })
-    })
+    addDocumentNonBlocking(collection(firestore, "staff"), { ...formData, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+    toast({ title: "Staff Member Added" })
+    setFormData({ name: "", role: "", email: "", status: "Active" })
   }
 
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
-      <CardHeader className="p-8">
-        <CardTitle className="font-headline text-2xl">Add Staff</CardTitle>
-        <CardDescription>Register a new member to the team.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-8 pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
-            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl h-12" placeholder="e.g. Sahil Ansari" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Role / Title</Label>
-            <Input value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} required className="rounded-2xl h-12" placeholder="Accountant" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Email</Label>
-            <Input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="rounded-2xl h-12" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Phone</Label>
-            <Input value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} className="rounded-2xl h-12" />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl transition-all text-lg gap-2">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Add Member</>}
-          </Button>
+    <Card className="rounded-[2rem] border-none shadow-xl">
+      <CardHeader><CardTitle>Add Staff</CardTitle></CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+          <Input placeholder="Role" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} required />
+          <Button type="submit" className="w-full">Add Member</Button>
         </form>
       </CardContent>
     </Card>
@@ -668,61 +296,21 @@ function StaffForm() {
 function CampaignList({ campaigns }: { campaigns: any[] | null }) {
   const { firestore } = useFirebase()
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-3xl font-headline">Active Campaigns</CardTitle>
-            <CardDescription className="text-lg">Track progress of global humanitarian initiatives.</CardDescription>
-          </div>
-          <Badge className="bg-primary/10 text-primary border-none py-1.5 px-4 font-bold">{campaigns?.length || 0} Registered</Badge>
-        </div>
-      </CardHeader>
+    <Card className="border-none shadow-xl rounded-[3rem] overflow-hidden">
+      <CardHeader><CardTitle>Initiatives</CardTitle></CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Identity</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Financial Goal</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Progress</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
-            </TableRow>
-          </TableHeader>
+          <TableHeader><TableRow><TableHead className="pl-8">Campaign</TableHead><TableHead>Category</TableHead><TableHead className="text-right pr-8">Actions</TableHead></TableRow></TableHeader>
           <TableBody>
             {campaigns?.map((c) => (
-              <TableRow key={c.id} className="border-muted/10 group">
-                <TableCell className="pl-10 py-6">
-                  <div>
-                    <p className="font-bold text-primary group-hover:text-accent transition-colors">{c.name}</p>
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">{c.category}</p>
-                  </div>
-                </TableCell>
-                <TableCell className="font-mono font-medium">₹{Number(c.goalAmount).toLocaleString()}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-1.5 min-w-[120px]">
-                     <p className="text-xs font-black text-accent">₹{Number(c.currentRaisedAmount || 0).toLocaleString()}</p>
-                     <div className="h-1.5 w-full bg-muted rounded-full">
-                       <div className="h-full bg-accent rounded-full" style={{ width: `${Math.min(((c.currentRaisedAmount || 0) / c.goalAmount) * 100, 100)}%` }} />
-                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right pr-10">
-                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl hover:bg-destructive/10" onClick={() => {
-                     if (confirm(`Confirm decommissioning of campaign: ${c.name}?`)) {
-                       const ref = doc(firestore!, "campaigns", c.id)
-                       deleteDocumentNonBlocking(ref)
-                     }
-                  }}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+              <TableRow key={c.id}>
+                <TableCell className="pl-8 font-bold">{c.name}</TableCell>
+                <TableCell>{c.category}</TableCell>
+                <TableCell className="text-right pr-8">
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteDocumentNonBlocking(doc(firestore!, "campaigns", c.id))}><Trash2 className="w-4 h-4" /></Button>
                 </TableCell>
               </TableRow>
             ))}
-            {campaigns?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No humanitarian campaigns registered in the current ledger.</TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -733,69 +321,25 @@ function CampaignList({ campaigns }: { campaigns: any[] | null }) {
 function CampaignForm() {
   const { firestore } = useFirebase()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    goalAmount: "",
-    description: "",
-    category: "General Relief",
-    isActive: true
-  })
+  const [formData, setFormData] = useState({ name: "", description: "", category: "General Relief" })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!firestore) return
-    setLoading(true)
-    
-    const colRef = collection(firestore, "campaigns")
     const id = crypto.randomUUID()
-    
-    addDocumentNonBlocking(colRef, {
-      ...formData,
-      id,
-      goalAmount: Number(formData.goalAmount),
-      currentRaisedAmount: 0,
-      currency: "INR",
-      startDate: new Date().toISOString().split('T')[0],
-      primaryImpactStatement: `Every ₹${formData.goalAmount} contributes to radical change.`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).then(() => {
-      setLoading(false)
-      toast({ title: "Campaign Launched", description: "Ledger entry created successfully." })
-      setFormData({ name: "", goalAmount: "", description: "", category: "General Relief", isActive: true })
-    })
+    addDocumentNonBlocking(collection(firestore, "campaigns"), { ...formData, id, isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+    toast({ title: "Campaign Launched" })
+    setFormData({ name: "", description: "", category: "General Relief" })
   }
 
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
-      <CardHeader className="p-8">
-        <CardTitle className="font-headline text-2xl">Launch Initiative</CardTitle>
-        <CardDescription>Deploy a new humanitarian project.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-8 pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Title</Label>
-            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl border-muted/50 h-12 focus-visible:ring-accent" placeholder="e.g. Winter Survival Kits" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Goal (INR)</Label>
-              <Input type="number" value={formData.goalAmount} onChange={e => setFormData({...formData, goalAmount: e.target.value})} required className="rounded-2xl border-muted/50 h-12" placeholder="50000" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</Label>
-              <Input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Objective</Label>
-            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-2xl border-muted/50 min-h-[120px]" placeholder="Outline the impact of this campaign..." />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl hover:shadow-primary/20 transition-all text-lg gap-2">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Plus className="w-5 h-5" /> Deploy Campaign</>}
-          </Button>
+    <Card className="rounded-[2rem] border-none shadow-xl">
+      <CardHeader><CardTitle>Launch Project</CardTitle></CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input placeholder="Title" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+          <Textarea placeholder="Description" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required />
+          <Button type="submit" className="w-full">Deploy Campaign</Button>
         </form>
       </CardContent>
     </Card>
@@ -805,44 +349,21 @@ function CampaignForm() {
 function CommunityList({ communities }: { communities: any[] | null }) {
   const { firestore } = useFirebase()
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50">
-        <CardTitle className="text-3xl font-headline">Managed Communities</CardTitle>
-        <CardDescription className="text-lg">View registered beneficiary regions.</CardDescription>
-      </CardHeader>
+    <Card className="border-none shadow-xl rounded-[3rem] overflow-hidden">
+      <CardHeader><CardTitle>Beneficiary Communities</CardTitle></CardHeader>
       <CardContent className="p-0">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-              <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Community Identity</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Geographic Region</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest">Demographic</TableHead>
-              <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
-            </TableRow>
-          </TableHeader>
+          <TableHeader><TableRow><TableHead className="pl-8">Community</TableHead><TableHead>Region</TableHead><TableHead className="text-right pr-8">Actions</TableHead></TableRow></TableHeader>
           <TableBody>
             {communities?.map((c) => (
-              <TableRow key={c.id} className="border-muted/10">
-                <TableCell className="font-bold pl-10 py-6 text-primary">{c.name}</TableCell>
-                <TableCell className="font-medium text-muted-foreground">{c.geographicRegion}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest text-accent border-accent/20 bg-accent/5">{c.type}</Badge>
-                </TableCell>
-                <TableCell className="text-right pr-10">
-                  <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
-                     const ref = doc(firestore!, "beneficiary_communities", c.id)
-                     deleteDocumentNonBlocking(ref)
-                  }}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+              <TableRow key={c.id}>
+                <TableCell className="pl-8 font-bold">{c.name}</TableCell>
+                <TableCell>{c.geographicRegion}</TableCell>
+                <TableCell className="text-right pr-8">
+                  <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteDocumentNonBlocking(doc(firestore!, "beneficiary_communities", c.id))}><Trash2 className="w-4 h-4" /></Button>
                 </TableCell>
               </TableRow>
             ))}
-            {communities?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No communities registered.</TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </CardContent>
@@ -853,190 +374,25 @@ function CommunityList({ communities }: { communities: any[] | null }) {
 function CommunityForm() {
   const { firestore } = useFirebase()
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    geographicRegion: "",
-    type: "Rural Village",
-    description: ""
-  })
+  const [formData, setFormData] = useState({ name: "", geographicRegion: "", type: "", description: "" })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!firestore) return
-    setLoading(true)
-    
-    const colRef = collection(firestore, "beneficiary_communities")
     const id = crypto.randomUUID()
-    
-    addDocumentNonBlocking(colRef, {
-      ...formData,
-      id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).then(() => {
-      setLoading(false)
-      toast({ title: "Community Registered", description: "Node added to the network." })
-      setFormData({ name: "", geographicRegion: "", type: "Rural Village", description: "" })
-    })
+    addDocumentNonBlocking(collection(firestore, "beneficiary_communities"), { ...formData, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+    toast({ title: "Community Registered" })
+    setFormData({ name: "", geographicRegion: "", type: "", description: "" })
   }
 
   return (
-    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
-      <CardHeader className="p-8">
-        <CardTitle className="font-headline text-2xl">Register Community</CardTitle>
-        <CardDescription>Expand the humanitarian footprint.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-8 pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Community Name</Label>
-            <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Geographic Region</Label>
-            <Input value={formData.geographicRegion} onChange={e => setFormData({...formData, geographicRegion: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Community Type</Label>
-            <Input value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Brief Description</Label>
-            <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required className="rounded-2xl border-muted/50 min-h-[100px]" />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-accent hover:bg-accent/90 shadow-xl transition-all text-lg">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Region Node"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ReportList() {
-  const { firestore } = useFirebase()
-  const q = useMemoFirebase(() => {
-    if (!firestore) return null
-    return query(collection(firestore, "transparency_reports"), orderBy("publishDate", "desc"))
-  }, [firestore])
-  
-  const { data: reports, isLoading } = useCollection(q)
-
-  return (
-    <Card className="border-none shadow-2xl rounded-[3rem] overflow-hidden bg-white">
-      <CardHeader className="p-10 pb-6 border-b border-muted/50">
-        <CardTitle className="text-3xl font-headline">Transparency Hub</CardTitle>
-        <CardDescription className="text-lg">Audit statements and annual performance records.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
-        {isLoading ? (
-          <div className="p-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Decrypting Files...</p>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/20 border-none hover:bg-muted/20">
-                <TableHead className="font-black text-[10px] uppercase tracking-widest pl-10 py-6">Document Title</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Publish Date</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest">Audit Type</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-10">Command</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reports?.map((r) => (
-                <TableRow key={r.id} className="border-muted/10">
-                  <TableCell className="font-bold pl-10 py-6 text-primary">{r.title}</TableCell>
-                  <TableCell className="font-medium text-muted-foreground">{r.publishDate}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest">{r.reportType}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right pr-10">
-                    <Button variant="ghost" size="icon" className="text-destructive rounded-xl" onClick={() => {
-                       const ref = doc(firestore!, "transparency_reports", r.id)
-                       deleteDocumentNonBlocking(ref)
-                    }}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {reports?.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-20 text-muted-foreground italic">No reports published.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function ReportForm() {
-  const { firestore } = useFirebase()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    title: "",
-    reportUrl: "",
-    reportType: "Annual Impact Audit",
-    description: "",
-    publishDate: new Date().toISOString().split('T')[0]
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!firestore) return
-    setLoading(true)
-    
-    const colRef = collection(firestore, "transparency_reports")
-    const id = crypto.randomUUID()
-    
-    addDocumentNonBlocking(colRef, {
-      ...formData,
-      id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).then(() => {
-      setLoading(false)
-      toast({ title: "Report Published", description: "Verification ledger updated." })
-      setFormData({ title: "", reportUrl: "", reportType: "Annual Impact Audit", description: "", publishDate: new Date().toISOString().split('T')[0] })
-    })
-  }
-
-  return (
-    <Card className="border-none shadow-2xl rounded-[3rem] bg-white">
-      <CardHeader className="p-8">
-        <CardTitle className="font-headline text-2xl">Publish Record</CardTitle>
-        <CardDescription>Maintain organizational transparency.</CardDescription>
-      </CardHeader>
-      <CardContent className="p-8 pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Title</Label>
-            <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Secured URL</Label>
-            <Input type="url" value={formData.reportUrl} onChange={e => setFormData({...formData, reportUrl: e.target.value})} placeholder="https://cloud.storage/..." required className="rounded-2xl border-muted/50 h-12" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Record Type</Label>
-              <Input value={formData.reportType} onChange={e => setFormData({...formData, reportType: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Release Date</Label>
-              <Input type="date" value={formData.publishDate} onChange={e => setFormData({...formData, publishDate: e.target.value})} required className="rounded-2xl border-muted/50 h-12" />
-            </div>
-          </div>
-          <Button type="submit" disabled={loading} className="w-full rounded-full h-14 font-bold bg-primary shadow-xl transition-all text-lg">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Publish Record"}
-          </Button>
+    <Card className="rounded-[2rem] border-none shadow-xl">
+      <CardHeader><CardTitle>Register Region</CardTitle></CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input placeholder="Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+          <Input placeholder="Region" value={formData.geographicRegion} onChange={e => setFormData({...formData, geographicRegion: e.target.value})} required />
+          <Button type="submit" className="w-full">Save Node</Button>
         </form>
       </CardContent>
     </Card>

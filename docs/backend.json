@@ -5,7 +5,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Donor",
       "type": "object",
-      "description": "Represents an individual or organization making a donation to the charity.",
+      "description": "Represents an individual or organization supporting the charity.",
       "properties": {
         "id": {
           "type": "string",
@@ -21,40 +21,8 @@
         },
         "email": {
           "type": "string",
-          "description": "The email address of the donor, used for communication and receipts.",
+          "description": "The email address of the donor.",
           "format": "email"
-        },
-        "phoneNumber": {
-          "type": "string",
-          "description": "The phone number of the donor. (Optional)"
-        },
-        "addressLine1": {
-          "type": "string",
-          "description": "First line of the donor's address. (Optional, for receipts/reporting)"
-        },
-        "addressLine2": {
-          "type": "string",
-          "description": "Second line of the donor's address. (Optional)"
-        },
-        "city": {
-          "type": "string",
-          "description": "The city of the donor's address. (Optional)"
-        },
-        "stateProvince": {
-          "type": "string",
-          "description": "The state or province of the donor's address. (Optional)"
-        },
-        "postalCode": {
-          "type": "string",
-          "description": "The postal code of the donor's address. (Optional)"
-        },
-        "country": {
-          "type": "string",
-          "description": "The country of the donor's address. (Optional)"
-        },
-        "isGuest": {
-          "type": "boolean",
-          "description": "Indicates if the donation was made by a guest donor (without a full profile). Defaults to true if no full profile."
         },
         "createdAt": {
           "type": "string",
@@ -72,7 +40,6 @@
         "firstName",
         "lastName",
         "email",
-        "isGuest",
         "createdAt"
       ]
     },
@@ -80,7 +47,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Campaign",
       "type": "object",
-      "description": "Represents a specific charitable cause, project, or fundraising initiative.",
+      "description": "Represents a specific charitable cause or project.",
       "properties": {
         "id": {
           "type": "string",
@@ -94,56 +61,13 @@
           "type": "string",
           "description": "A detailed description of the campaign's goals and impact."
         },
-        "goalAmount": {
-          "type": "number",
-          "description": "The target fundraising amount for this campaign."
-        },
-        "currency": {
-          "type": "string",
-          "description": "The currency in which the goal amount is set (e.g., 'INR', 'USD')."
-        },
-        "currentRaisedAmount": {
-          "type": "number",
-          "description": "The current amount of funds raised for this campaign."
-        },
-        "startDate": {
-          "type": "string",
-          "description": "The start date of the campaign.",
-          "format": "date"
-        },
-        "endDate": {
-          "type": "string",
-          "description": "The planned end date of the campaign.",
-          "format": "date"
-        },
         "isActive": {
           "type": "boolean",
-          "description": "Indicates if the campaign is currently active and open for donations."
-        },
-        "heroImageUrl": {
-          "type": "string",
-          "description": "URL for the main image displayed prominently for the campaign (e.g., in the hero section).",
-          "format": "uri"
-        },
-        "thumbnailImageUrl": {
-          "type": "string",
-          "description": "URL for a smaller image used in campaign listings or previews.",
-          "format": "uri"
-        },
-        "primaryImpactStatement": {
-          "type": "string",
-          "description": "A concise statement highlighting the primary impact of the campaign, potentially AI-generated."
+          "description": "Indicates if the campaign is currently active."
         },
         "category": {
           "type": "string",
-          "description": "The category the campaign belongs to (e.g., 'Child Education', 'Healthcare', 'Disaster Relief')."
-        },
-        "beneficiaryCommunityIds": {
-          "type": "array",
-          "description": "References to BeneficiaryCommunity entities that benefit from this campaign. (Relationship: Campaign N:N BeneficiaryCommunity)",
-          "items": {
-            "type": "string"
-          }
+          "description": "The category the campaign belongs to."
         },
         "createdAt": {
           "type": "string",
@@ -160,110 +84,8 @@
         "id",
         "name",
         "description",
-        "goalAmount",
-        "currency",
-        "currentRaisedAmount",
-        "startDate",
         "isActive",
-        "primaryImpactStatement",
         "category",
-        "createdAt"
-      ]
-    },
-    "Donation": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Donation",
-      "type": "object",
-      "description": "Represents a single monetary contribution made by a donor.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Donation transaction."
-        },
-        "donorId": {
-          "type": "string",
-          "description": "Reference to the Donor who made this contribution. (Relationship: Donor 1:N Donation)"
-        },
-        "campaignId": {
-          "type": "string",
-          "description": "Reference to the Campaign this donation supports. Optional if it's a general donation. (Relationship: Campaign 1:N Donation)"
-        },
-        "amount": {
-          "type": "number",
-          "description": "The amount of the donation."
-        },
-        "currency": {
-          "type": "string",
-          "description": "The currency of the donation. (e.g., 'INR' as per user request)"
-        },
-        "transactionDate": {
-          "type": "string",
-          "description": "The date and time when the donation transaction occurred.",
-          "format": "date-time"
-        },
-        "paymentMethodType": {
-          "type": "string",
-          "description": "The type of payment method used (e.g., 'Credit Card', 'Debit Card', 'Apple Pay', 'Google Pay')."
-        },
-        "transactionReference": {
-          "type": "string",
-          "description": "A unique reference ID provided by the payment gateway for the transaction."
-        },
-        "status": {
-          "type": "string",
-          "description": "The current status of the donation transaction (e.g., 'Completed', 'Pending', 'Failed', 'Refunded')."
-        },
-        "isRecurring": {
-          "type": "boolean",
-          "description": "Indicates if this donation is part of a recurring contribution plan."
-        },
-        "recurrenceFrequency": {
-          "type": "string",
-          "description": "The frequency of the recurring donation (e.g., 'monthly', 'annually'). Required if isRecurring is true."
-        },
-        "nextRecurrenceDate": {
-          "type": "string",
-          "description": "The date of the next scheduled payment for a recurring donation. Required if isRecurring is true.",
-          "format": "date"
-        },
-        "honoreeName": {
-          "type": "string",
-          "description": "The name of the individual in whose honor the donation was made. (Optional)"
-        },
-        "honoreeEmail": {
-          "type": "string",
-          "description": "The email address of the honoree, for sending digital acknowledgments. (Optional)",
-          "format": "email"
-        },
-        "honoreeMessage": {
-          "type": "string",
-          "description": "A personal message from the donor to the honoree. (Optional)"
-        },
-        "acknowledgmentEmailSent": {
-          "type": "boolean",
-          "description": "Indicates if a digital acknowledgment email has been sent to the honoree."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the donation record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the donation record was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "donorId",
-        "amount",
-        "currency",
-        "transactionDate",
-        "paymentMethodType",
-        "transactionReference",
-        "status",
-        "isRecurring",
         "createdAt"
       ]
     },
@@ -290,19 +112,10 @@
           "type": "string",
           "description": "The job title or role (e.g., 'Field Coordinator', 'Accountant')."
         },
-        "phoneNumber": {
-          "type": "string",
-          "description": "The phone number of the staff member."
-        },
         "status": {
           "type": "string",
           "description": "Employment status.",
           "enum": ["Active", "Inactive"]
-        },
-        "joinedDate": {
-          "type": "string",
-          "description": "The date they joined the organization.",
-          "format": "date"
         },
         "createdAt": {
           "type": "string",
@@ -327,7 +140,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "BeneficiaryCommunity",
       "type": "object",
-      "description": "Represents a specific group or region that benefits from charitable activities, addressing the 'community' aspect of the request.",
+      "description": "Represents a specific group or region that benefits from charitable activities.",
       "properties": {
         "id": {
           "type": "string",
@@ -335,7 +148,7 @@
         },
         "name": {
           "type": "string",
-          "description": "The name of the beneficiary community (e.g., 'Rural Sindh Village A', 'Orphanage XYZ in Karachi')."
+          "description": "The name of the beneficiary community."
         },
         "description": {
           "type": "string",
@@ -343,18 +156,11 @@
         },
         "geographicRegion": {
           "type": "string",
-          "description": "The geographical area where this community is located (e.g., 'Punjab, Pakistan', 'Mumbai, India')."
+          "description": "The geographical area where this community is located."
         },
         "type": {
           "type": "string",
-          "description": "The type or demographic of the community (e.g., 'Children', 'Elderly', 'Rural Village', 'Disaster Victims')."
-        },
-        "campaignIds": {
-          "type": "array",
-          "description": "References to Campaign entities that support this community. (Relationship: BeneficiaryCommunity N:N Campaign)",
-          "items": {
-            "type": "string"
-          }
+          "description": "The type or demographic of the community."
         },
         "createdAt": {
           "type": "string",
@@ -375,115 +181,11 @@
         "type",
         "createdAt"
       ]
-    },
-    "TransparencyReport": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "TransparencyReport",
-      "type": "object",
-      "description": "Stores information about publicly available reports and documents for trust and transparency.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the TransparencyReport entity."
-        },
-        "title": {
-          "type": "string",
-          "description": "The title of the report (e.g., 'Annual Financial Report 2023', 'NGO Registration Certificate')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description or summary of the report's content."
-        },
-        "reportUrl": {
-          "type": "string",
-          "description": "The URL or link to the actual report document (e.g., PDF).",
-          "format": "uri"
-        },
-        "publishDate": {
-          "type": "string",
-          "description": "The date when the report was published or released.",
-          "format": "date"
-        },
-        "reportType": {
-          "type": "string",
-          "description": "The type of the report (e.g., 'Annual Report', 'Audit Report', 'NGO Registration Document', 'Impact Assessment')."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the report record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the report record was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "description",
-        "reportUrl",
-        "publishDate",
-        "reportType",
-        "createdAt"
-      ]
-    },
-    "DonationTier": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DonationTier",
-      "type": "object",
-      "description": "Defines preset donation amounts and their associated impact descriptions for campaigns or general donations.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the DonationTier entity."
-        },
-        "campaignId": {
-          "type": "string",
-          "description": "Reference to the Campaign this tier is specific to. Optional for global donation tiers. (Relationship: Campaign 1:N DonationTier)"
-        },
-        "amount": {
-          "type": "number",
-          "description": "The specific donation amount for this tier (e.g., 10, 50, 100)."
-        },
-        "currency": {
-          "type": "string",
-          "description": "The currency for this donation tier (e.g., 'INR')."
-        },
-        "impactDescription": {
-          "type": "string",
-          "description": "A description of the tangible impact this donation amount will have (e.g., 'Provides 10 meals for children', 'Funds a day of education')."
-        },
-        "sortOrder": {
-          "type": "number",
-          "description": "An integer to specify the display order of this tier in the UI."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the donation tier record was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the donation tier record was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "amount",
-        "currency",
-        "impactDescription",
-        "sortOrder",
-        "createdAt"
-      ]
     }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
@@ -495,7 +197,7 @@
           "schema": {
             "$ref": "#/backend/entities/Donor"
           },
-          "description": "Stores individual donor profiles. The `{donorId}` matches the authenticated user's `uid` for logged-in donors."
+          "description": "Stores individual donor profiles."
         }
       },
       {
@@ -506,16 +208,6 @@
             "$ref": "#/backend/entities/Campaign"
           },
           "description": "Main collection for charitable campaigns. Publicly readable."
-        }
-      },
-      {
-        "path": "/donations/{donationId}",
-        "definition": {
-          "entityName": "Donation",
-          "schema": {
-            "$ref": "#/backend/entities/Donation"
-          },
-          "description": "Records individual donation transactions. Accessible by specific donor and admins."
         }
       },
       {
@@ -539,26 +231,6 @@
         }
       },
       {
-        "path": "/transparency_reports/{reportId}",
-        "definition": {
-          "entityName": "TransparencyReport",
-          "schema": {
-            "$ref": "#/backend/entities/TransparencyReport"
-          },
-          "description": "Stores links and metadata for public transparency documents."
-        }
-      },
-      {
-        "path": "/donation_tiers/{tierId}",
-        "definition": {
-          "entityName": "DonationTier",
-          "schema": {
-            "$ref": "#/backend/entities/DonationTier"
-          },
-          "description": "Defines global preset donation amounts."
-        }
-      },
-      {
         "path": "/admins/{uid}",
         "definition": {
           "entityName": "AdminRole",
@@ -568,16 +240,10 @@
               "uid": { "type": "string" }
             }
           },
-          "description": "Implements DBAC for administrators. Existence of a document grants privileges.",
-          "params": [
-            {
-              "name": "uid",
-              "description": "The unique user ID of an administrator."
-            }
-          ]
+          "description": "Implements DBAC for administrators. Existence of a document grants privileges."
         }
       }
     ],
-    "reasoning": "Added StaffMember entity and /staff collection for organizational management."
+    "reasoning": "Removed all donation and payment related entities and paths as requested."
   }
 }

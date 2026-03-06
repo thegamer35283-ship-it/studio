@@ -3,14 +3,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * CORE PHILOSOPHY:
-     * This ruleset implements a robust, database-backed access control (DBAC) model.
-     * Privileges are determined by the existence of a document in the /admins/ collection.
-     */
-
-    // --- GLOBAL HELPER FUNCTIONS ---
-
     function isSignedIn() {
       return request.auth != null;
     }
@@ -23,8 +15,6 @@ service cloud.firestore {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // --- COLLECTION RULES ---
-
     match /donors/{donorId} {
       allow get: if isOwner(donorId) || isAdmin();
       allow list: if isAdmin();
@@ -36,23 +26,9 @@ service cloud.firestore {
     match /campaigns/{campaignId} {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();
-
-      match /donation_tiers/{tierId} {
-        allow get, list: if true;
-        allow create, update, delete: if isAdmin();
-      }
-    }
-
-    match /donations/{donationId} {
-      // Allow creation for anyone to support guest donations, 
-      // but only allow read/list for admins or the specific owner.
-      allow create: if true; 
-      allow get, list: if isAdmin() || (isSignedIn() && resource.data.donorId == request.auth.uid);
-      allow update, delete: if isAdmin();
     }
 
     match /staff/{staffId} {
-      // Allow public read access to staff for the frontend directory
       allow get, list: if true;
       allow write: if isAdmin();
     }
@@ -62,21 +38,9 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    match /transparency_reports/{reportId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /donation_tiers/{tierId} {
-      allow get, list: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
     match /admins/{uid} {
       allow get: if isSignedIn();
       allow list: if isAdmin();
-      // Only allow creation by existing admins for high security
-      // (Except for initial setup if no admins exist - handled via console usually)
       allow create, update, delete: if isAdmin();
     }
   }

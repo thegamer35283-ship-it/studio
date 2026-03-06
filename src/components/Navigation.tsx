@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -57,10 +58,6 @@ export function Navigation() {
                 <User className="w-4 h-4" /> Sign In
               </Button>
             )}
-            
-            <Button asChild className="bg-primary text-white hover:bg-primary/90 rounded-full font-headline font-bold px-8 h-12 shadow-lg transition-all hover:translate-y-[-2px] hover:shadow-primary/20">
-              <Link href="/donate">Donate Now</Link>
-            </Button>
           </div>
         </div>
       </div>
