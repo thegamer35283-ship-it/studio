@@ -4,6 +4,7 @@
 import { useCollection, useMemoFirebase, useFirebase } from "@/firebase"
 import { collection, query, where } from "firebase/firestore"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Users, Loader2, Contact } from "lucide-react"
 
 export function StaffSection() {

@@ -1,7 +1,9 @@
+
 "use client"
 
 import { TrustSignals } from "@/components/TrustSignals"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { FileText, Download, ShieldCheck, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -37,6 +39,9 @@ export default function TransparencyPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-xs text-muted-foreground mb-4">{report.type}</p>
+                <div className="mb-4">
+                  <Badge variant="secondary" className="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest">Verified Document</Badge>
+                </div>
                 <Button variant="outline" className="w-full rounded-full gap-2">
                   <Download className="w-4 h-4" /> Download
                 </Button>
