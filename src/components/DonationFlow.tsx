@@ -42,8 +42,10 @@ export function DonationFlow() {
   const [hasCopiedPhone, setHasCopiedPhone] = useState(false)
 
   const currentAmount = customAmount || (selectedAmount ? selectedAmount.toString() : "")
-  // Dynamic UPI URI based on user parameters - matching Java code exactly
-  const upiUri = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}&tn=${encodeURIComponent("Payment")}&am=${currentAmount}&cu=INR`
+  
+  // Dynamic UPI URI based on user parameters - refined for maximum compatibility
+  // Added mc=0000 and tr for better verification by banking apps
+  const upiUri = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(NAME)}&tn=${encodeURIComponent("Payment")}&am=${currentAmount}&cu=INR&mc=0000&tr=${utr || 'GEN' + Date.now()}`
 
   useEffect(() => {
     if (!user && auth) {
@@ -137,7 +139,7 @@ export function DonationFlow() {
           </div>
           <h2 className="text-4xl font-headline font-bold mb-4 text-primary">JazakAllah Khair!</h2>
           <p className="text-muted-foreground mb-10 leading-relaxed font-medium">
-            Your bond of hope has been **automatically saved** to our humanitarian ledger. Your transparency helps us build trust across the Ummah.
+            Your bond of hope has been automatically saved to our humanitarian ledger. Your transparency helps us build trust across the Ummah.
           </p>
           <Button onClick={() => { setStep("pay"); setCustomAmount(""); setSelectedAmount(null); setUtr("") }} className="rounded-full px-12 h-16 font-bold bg-primary hover:bg-primary/90 shadow-2xl transition-all hover:scale-105">
             Submit Another Bond
@@ -157,7 +159,7 @@ export function DonationFlow() {
             </div>
             <h2 className="text-5xl lg:text-6xl font-headline font-bold mb-6 tracking-tight">Direct Contribution</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed italic">
-              "The believer's shade on the Day of Resurrection will be their charity."
+              &quot;The believer&apos;s shade on the Day of Resurrection will be their charity.&quot;
             </p>
           </div>
 
@@ -231,13 +233,13 @@ export function DonationFlow() {
 
               <Alert className="rounded-[2.5rem] border-accent/20 bg-accent/5 text-primary shadow-xl border-l-8 border-l-accent">
                 <AlertCircle className="h-6 w-6 text-accent mt-1" />
-                <AlertTitle className="font-headline font-bold text-lg mb-2 pl-2">Bypass "Security Declined"?</AlertTitle>
+                <AlertTitle className="font-headline font-bold text-lg mb-2 pl-2">Bypass &quot;Security Declined&quot;?</AlertTitle>
                 <AlertDescription className="text-sm leading-relaxed space-y-3 mt-1 pl-2 font-medium">
-                  <p>If your app (like **PhonePe, FamX, or GPay**) shows a security error, follow these steps to bypass it:</p>
+                  <p>If your app (like <strong>PhonePe, FamX, or GPay</strong>) shows a security error, follow these steps to bypass it:</p>
                   <ol className="list-decimal pl-4 space-y-2">
-                    <li>**Copy the Mobile Number** (`{PHONE_NUMBER}`) from above.</li>
+                    <li><strong>Copy the Mobile Number</strong> (<code>{PHONE_NUMBER}</code>) from above.</li>
                     <li>Open your payment app (PhonePe/GPay).</li>
-                    <li>Tap **"To Mobile Number"** or **"Search"**.</li>
+                    <li>Tap <strong>&quot;To Mobile Number&quot;</strong> or <strong>&quot;Search&quot;</strong>.</li>
                     <li>Paste the number and pay directly.</li>
                   </ol>
                   <div className="pt-2 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">

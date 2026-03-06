@@ -220,7 +220,7 @@ export default function AdminDashboard() {
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Ledger Access</span>
             </div>
             <h1 className="text-5xl font-headline font-bold text-primary tracking-tight">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-2 italic font-medium">"Excellence is to do a job so well that it becomes a source of continuous blessing."</p>
+            <p className="text-muted-foreground mt-2 italic font-medium">&quot;Excellence is to do a job so well that it becomes a source of continuous blessing.&quot;</p>
           </div>
           
           <div className="flex items-center gap-4 bg-white p-4 rounded-[2rem] shadow-xl border border-border/50 group hover:border-primary/30 transition-colors">
