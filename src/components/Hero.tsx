@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -15,7 +14,7 @@ export function Hero() {
   const bgImageUrl = bgImage?.imageUrl || "https://picsum.photos/seed/islamic-night-bg/1920/1080"
 
   return (
-    <section className="relative py-24 lg:py-36 overflow-hidden min-h-[80vh] flex items-center">
+    <section className="relative py-24 lg:py-36 overflow-hidden min-h-[85vh] flex items-center">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -26,7 +25,7 @@ export function Hero() {
           data-ai-hint={bgImage?.imageHint || "mosque night"}
           priority
         />
-        <div className="absolute inset-0 bg-primary/80 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-primary/85 backdrop-blur-[2px]"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/60 to-transparent"></div>
       </div>
 
@@ -47,14 +46,14 @@ export function Hero() {
               Lifting <span className="text-accent italic">Bonds of Hope</span> for the Needy.
             </h1>
             <p className="text-xl text-primary-foreground/80 mb-12 max-w-lg leading-relaxed">
-              Islamic Group 313 works tirelessly across India, Iran, and beyond to support those who need it most, with dignity and transparency.
+              Islamic Group 313 works tirelessly across the globe to support those who need it most, with dignity and radical transparency.
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
               <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-white px-10 h-16 rounded-full text-xl font-headline font-bold shadow-2xl transition-all hover:translate-y-[-4px]">
                 <Link href="/donate">Donate Now <Heart className="ml-2 w-6 h-6 fill-current" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="px-10 h-16 rounded-full text-xl font-headline font-bold border-white/40 text-white hover:bg-white/10 backdrop-blur-sm">
-                <Link href="/impact">See Impact</Link>
+                <Link href="/impact">Our Impact</Link>
               </Button>
             </div>
 
@@ -81,7 +80,7 @@ export function Hero() {
           </div>
 
           <div className="relative hidden lg:block">
-            <div className="relative h-[600px] w-full rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-black/20 backdrop-blur-sm border border-white/10">
+            <div className="relative h-[650px] w-full rounded-[4rem] overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.4)] bg-black/20 backdrop-blur-sm border border-white/10">
               <Image
                 src={mainImageUrl}
                 alt={mainImage?.description || "Direct Relief Impact"}
@@ -90,15 +89,15 @@ export function Hero() {
                 data-ai-hint={mainImage?.imageHint || "poor child"}
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-              <div className="absolute bottom-10 left-10 right-10 bg-white/10 backdrop-blur-xl p-8 rounded-[2rem] border border-white/20 shadow-2xl">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center text-white shrink-0 shadow-lg">
-                    <Moon className="w-8 h-8 fill-current" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+              <div className="absolute bottom-12 left-12 right-12 bg-white/10 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-white/20 shadow-2xl">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-[1.25rem] bg-accent flex items-center justify-center text-white shrink-0 shadow-xl">
+                    <Moon className="w-9 h-9 fill-current" />
                   </div>
                   <div>
-                    <h4 className="font-headline font-bold text-2xl text-white">Direct Relief</h4>
-                    <p className="text-primary-foreground/70 italic text-sm">Supporting the Ummah through collective Islamic work.</p>
+                    <h4 className="font-headline font-bold text-3xl text-white tracking-tight">Direct Relief</h4>
+                    <p className="text-primary-foreground/80 italic text-sm">Empowering the Ummah through divine service.</p>
                   </div>
                 </div>
               </div>
