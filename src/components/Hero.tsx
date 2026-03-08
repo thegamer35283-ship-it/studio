@@ -32,8 +32,13 @@ export function Hero() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="text-white">
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent-foreground text-sm font-bold border border-accent/30 backdrop-blur-md">
+            <div className="flex flex-col gap-6 mb-10">
+              <div className="flex gap-8 items-center animate-in fade-in slide-in-from-left-4 duration-1000">
+                <span className="text-7xl drop-shadow-2xl hover:scale-110 transition-transform cursor-default" title="India">🇮🇳</span>
+                <span className="text-7xl drop-shadow-2xl hover:scale-110 transition-transform cursor-default" title="Iran">🇮🇷</span>
+              </div>
+              
+              <div className="inline-flex items-center gap-2 w-fit px-4 py-2 rounded-full bg-accent/20 text-accent-foreground text-sm font-bold border border-accent/30 backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
